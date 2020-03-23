@@ -49,5 +49,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.2.0"
     implementation "androidx.fragment:fragment-ktx:1.2.3"
 
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.architectureComponentsVersion}"
+
     implementation 'com.hannesdorfmann:adapterdelegates3:3.1.0'
 }
