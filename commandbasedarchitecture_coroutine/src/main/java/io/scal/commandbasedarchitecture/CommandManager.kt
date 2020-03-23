@@ -37,8 +37,8 @@ class CommandManagerImpl<State>(
     private val runningActionCommands = mutableListOf<ActionCommand<*, State>>()
 
     /**
-     * Will post command to execution quire.
-     * Command may not be added to the pending quire - strategy rules this.
+     * Will post command to execution queue.
+     * Command may not be added to the pending queue - strategy rules this.
      */
     @MainThread
     override fun postCommand(actionCommand: ActionCommand<*, State>) {

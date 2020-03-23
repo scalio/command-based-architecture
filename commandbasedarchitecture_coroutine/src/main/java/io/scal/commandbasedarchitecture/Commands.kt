@@ -90,7 +90,7 @@ interface StateStrategy {
 /**
  * If tag is null - allows concurrent execution always.
  *
- * If tag is not null - allows concurrent execution only if there is no running commands with same strategy and tag.
+ * If tag is not null - allows concurrent execution only if there are no running commands with same strategy and tag.
  * Also will remove any pending command with the same tag and replace by a new one.
  */
 open class ConcurrentStrategy(private val tag: String? = null) : StateStrategy {
@@ -125,7 +125,7 @@ open class ConcurrentStrategy(private val tag: String? = null) : StateStrategy {
 }
 
 /**
- * Will be added to the queue only if there is no other tasks with this strategy in pending and running queues.
+ * Will be added to the queue only if there are no other tasks with this strategy in pending and running queues.
  * Will be executed only as a single task and block all other tasks from execution.
  */
 open class SingleStrategy : StateStrategy {
@@ -148,7 +148,7 @@ open class SingleStrategy : StateStrategy {
 }
 
 /**
- * Same as SingleStrategy but will be added to the pending queue only if there is no pending or running task with a strategy with the same tag.
+ * Same as SingleStrategy but will be added to the pending queue only if there are no pending or running task with a strategy with the same tag.
  */
 open class SingleWithTagStrategy(private val tag: String) : SingleStrategy() {
 
