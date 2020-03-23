@@ -1,0 +1,63 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.MaterialComponents.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_marginTop="1dp"
+    android:layout_marginBottom="1dp"
+    app:cardBackgroundColor="@color/colorAccent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvHome"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:textColor="@color/colorPrimaryDark"
+            tools:text="text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addToFavorite"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="12dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/colorPrimary"
+            app:icon="@drawable/ic_main_unstar"
+            app:iconPadding="0dp"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/removeFromFavorite"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="12dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/colorPrimary"
+            app:icon="@drawable/ic_main_star"
+            app:iconPadding="0dp"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

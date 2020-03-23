@@ -1,0 +1,9 @@
+<resources>
+
+    <string name="app_name">Command Based Architecture</string>
+
+    <string name="text_retry">Retry</string>
+
+    <string name="main_empty_data">No data yet…</string>
+
+</resources>
