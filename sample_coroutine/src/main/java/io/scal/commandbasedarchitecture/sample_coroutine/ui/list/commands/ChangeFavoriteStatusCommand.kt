@@ -1,53 +1,49 @@
-package io.scal.commandbasedarchitecture.sample_coroutine.ui.main.commands
+package io.scal.commandbasedarchitecture.sample_coroutine.ui.list.commands
 
 import io.scal.commandbasedarchitecture.ActionCommandWithStrategy
 import io.scal.commandbasedarchitecture.ConcurrentStrategy
 import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.main.FavoriteState
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.main.MainScreenState
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.main.UIMainItem
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.FavoriteState
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
 
-internal class MainChangeFavoriteStatusCommand(
+internal class ChangeFavoriteStatusCommand(
     private val mainItemUid: String,
     private val changeToFavorite: Boolean,
     private val changeFavoriteAction: suspend () -> Unit,
     private val onFavoriteChangeFailed: (Throwable) -> Unit
-) : ActionCommandWithStrategy<Unit, MainScreenState>(ConcurrentStrategy(mainItemUid)) {
+) : ActionCommandWithStrategy<Unit, ListScreenState>(ConcurrentStrategy(mainItemUid)) {
 
-    override fun onCommandWasAdded(dataState: MainScreenState): MainScreenState =
+    override fun onCommandWasAdded(dataState: ListScreenState): ListScreenState =
         if (dataState.pageData?.itemsList?.any { it.key == mainItemUid } == true) {
             dataState.copy(
                 pageData = dataState.pageData?.updateItemFavoriteState {
-                    it.newSelection(
-                        changeToFavorite
-                    )
+                    it.newSelection(changeToFavorite)
                 }
             )
         } else {
             dataState
         }
 
-    override suspend fun executeCommand(dataState: MainScreenState) {
+    override suspend fun executeCommand(dataState: ListScreenState) {
         val uiMainItem = dataState.pageData?.itemsList?.firstOrNull { it.key == mainItemUid }
         if (uiMainItem?.favoriteState is FavoriteState.PreSelectProgress && uiMainItem.favoriteState.hasChange()) {
             changeFavoriteAction()
         }
     }
 
-    override fun onExecuteSuccess(dataState: MainScreenState, result: Unit): MainScreenState =
+    override fun onExecuteSuccess(dataState: ListScreenState, result: Unit): ListScreenState =
         if (dataState.pageData?.itemsList?.any { it.key == mainItemUid } == true) {
             dataState.copy(
                 pageData = dataState.pageData?.updateItemFavoriteState {
-                    it.newFinalState(
-                        changeToFavorite
-                    )
+                    it.newFinalState(changeToFavorite)
                 }
             )
         } else {
             dataState
         }
 
-    override fun onExecuteFail(dataState: MainScreenState, error: Throwable): MainScreenState =
+    override fun onExecuteFail(dataState: ListScreenState, error: Throwable): ListScreenState =
         if (dataState.pageData?.itemsList?.any { it.key == mainItemUid } == true) {
             var hasChange = false
             val newData = dataState.copy(

@@ -1,8 +1,7 @@
-package io.scal.commandbasedarchitecture.sample_coroutine.ui.main
+package io.scal.commandbasedarchitecture.sample_coroutine.ui.list
 
 import android.app.Application
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,23 +10,19 @@ import io.scal.commandbasedarchitecture.CommandManagerImpl
 import io.scal.commandbasedarchitecture.pagination.LoadNextWithPageNumberCommand
 import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.pagination.RefreshCommand
-import io.scal.commandbasedarchitecture.sample_coroutine.model.MainItem
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.main.commands.MainChangeFavoriteStatusCommand
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.commands.ChangeFavoriteStatusCommand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private const val PAGE_SIZE = 20
-
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class SimpleListViewModel(application: Application) : ListViewModel(application) {
 
     private val mutableDataState = MutableLiveData(
-        MainScreenState(null, null, null)
+        ListScreenState(null, null, null)
     )
-    val dataState: LiveData<MainScreenState> = mutableDataState
-
-    private val commandManager: CommandManager<MainScreenState> by lazy {
+    override val dataState: LiveData<ListScreenState> = mutableDataState
+    override val commandManager: CommandManager<ListScreenState> by lazy {
         CommandManagerImpl(mutableDataState, viewModelScope)
     }
 
@@ -35,7 +30,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         reload()
     }
 
-    fun reload() {
+    override fun reload() {
         commandManager.postCommand(
             RefreshCommand(
                 { executeLoadNextPage(0) },
@@ -45,7 +40,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun loadNextPage() {
+    override fun loadNextPage() {
         commandManager.postCommand(
             LoadNextWithPageNumberCommand(
                 { executeLoadNextPage(it) },
@@ -66,13 +61,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun removeFromFavorite(item: UIMainItem) {
+    override fun removeFromFavorite(item: UIMainItem) {
         if (item.favoriteState.favorite) {
             executeFavoriteChangeAction(item.uid, false)
         }
     }
 
-    fun addToFavorite(item: UIMainItem) {
+    override fun addToFavorite(item: UIMainItem) {
         if (!item.favoriteState.favorite) {
             executeFavoriteChangeAction(item.uid, true)
         }
@@ -80,7 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun executeFavoriteChangeAction(uid: String, newFavoriteStatus: Boolean) {
         commandManager.postCommand(
-            MainChangeFavoriteStatusCommand(
+            ChangeFavoriteStatusCommand(
                 uid,
                 newFavoriteStatus,
                 {
@@ -92,12 +87,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
     }
-}
-
-private fun MainItem.toUIMainItem(): UIMainItem {
-    return UIMainItem(
-        uid,
-        "$firstTitlePart $secondTitlePart".trim(),
-        FavoriteState.NoProgress(false)
-    )
 }

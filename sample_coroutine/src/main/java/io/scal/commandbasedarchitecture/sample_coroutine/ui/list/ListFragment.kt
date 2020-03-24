@@ -1,11 +1,11 @@
-package io.scal.commandbasedarchitecture.sample_coroutine.ui.main
+package io.scal.commandbasedarchitecture.sample_coroutine.ui.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.scal.commandbasedarchitecture.pagination.dataAndNextPageLoadingStatus
@@ -14,27 +14,43 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgres
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.listenForEndScroll
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.showNoProgressErrorState
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.main.adapter.MainAdapter
-import kotlinx.android.synthetic.main.fragment_main.*
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.details.ItemDetailsFragment
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.adapter.ListAdapter
+import io.scal.commandbasedarchitecture.sample_coroutine.ui.root.RootActivity
+import kotlinx.android.synthetic.main.fragment_list.*
 
-class MainFragment : Fragment() {
+class ListFragment : Fragment() {
 
-    private val viewModelInstance: MainViewModel by activityViewModels()
+    private val simpleViewModelInstance: ListViewModel by viewModels<SimpleListViewModel>()
+    private val broadCastViewModelInstance: ListViewModel by viewModels<BroadcastListViewModel>()
 
-    private val adapter by lazy { MainAdapter(viewModelInstance) }
+    @Suppress("ConstantConditionIf")
+    private val viewModelInstance: ListViewModel by lazy {
+        if (RootActivity.userBroadcastViewModels) broadCastViewModelInstance else simpleViewModelInstance
+    }
+
+    private val adapter by lazy {
+        ListAdapter(viewModelInstance) {
+            navigateToItemDetails(it, (activity as? RootActivity) ?: return@ListAdapter)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View =
-        inflater.inflate(R.layout.fragment_main, container!!, false)
+        inflater.inflate(R.layout.fragment_list, container!!, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initRecyclerView()
         initStateModel()
+    }
+
+    private fun navigateToItemDetails(uiMainItem: UIMainItem, rootActivity: RootActivity) {
+        rootActivity.addNewFragment(ItemDetailsFragment.createScreen(uiMainItem.uid))
     }
 
     private fun initRecyclerView() {

@@ -1,4 +1,4 @@
-package io.scal.commandbasedarchitecture.sample_coroutine.ui.main
+package io.scal.commandbasedarchitecture.sample_coroutine.ui.list
 
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIItem
 
