@@ -35,15 +35,13 @@ class ItemDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val itemUid = arguments?.getString("itemUid")
-        if (null == itemUid) {
-            view.post { activity?.onBackPressed() }
-        } else {
-            viewModelInstance.itemUid = itemUid
-            viewModelInstance.reload()
+            ?: throw IllegalStateException("please pass itemUid for this fragment")
 
-            initSwipeToRefreshView()
-            initStateModel()
-        }
+        viewModelInstance.itemUid = itemUid
+        viewModelInstance.reload()
+
+        initSwipeToRefreshView()
+        initStateModel()
     }
 
     private fun initSwipeToRefreshView() {
@@ -58,6 +56,7 @@ class ItemDetailsFragment : Fragment() {
                     if (null == dataState) return@Observer
 
                     when (val item = dataState.item) {
+                        // we do not have item data yet -> it is loading or we have loading error
                         null -> {
                             if (dataState.refreshStatus is UIProgressErrorItem.Progress) {
                                 showNoProgressErrorState(progressError)
@@ -66,6 +65,7 @@ class ItemDetailsFragment : Fragment() {
                             }
                             content.visibility = View.GONE
                         }
+                        // we have some data -> lets show it
                         else -> {
                             showNoProgressErrorState(progressError)
                             content.visibility = View.VISIBLE

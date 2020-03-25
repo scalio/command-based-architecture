@@ -10,6 +10,8 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.viewmodel.ItemsRootB
 class RootActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // we do not use DI for simplifying so this is a kind of singleton initialization.
+        // do NOT do this in the real application!
         ItemsRootBroadcastViewModel.initIfNeeded(application)
 
         super.onCreate(savedInstanceState)
@@ -37,6 +39,9 @@ class RootActivity : AppCompatActivity() {
     }
 
     companion object {
+        /**
+         * constant that switch from simple to broadcast view model's realization
+         */
         const val userBroadcastViewModels = true
     }
 }

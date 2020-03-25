@@ -8,24 +8,39 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Manager that is able to execute commands with appropriate strategy while CoroutineScope is active
+ * Manager that is able to execute commands
  */
 interface CommandManager<State> {
 
+    /**
+     * Add command to pending quire if command allows that
+     * @see StateStrategy
+     */
     @MainThread
     fun postCommand(actionCommand: ActionCommand<*, State>)
 
+    /**
+     * Remove all pending commands that fits the rule
+     */
     @MainThread
     fun clearPendingCommands(clearRule: (ActionCommand<*, State>) -> Boolean)
 
+    /**
+     * Will block any pending commands from run. All already running tasks will be executed normally
+     */
     @MainThread
     fun blockExecutions()
 
+    /**
+     * Allow normal execution flow
+     */
     @MainThread
     fun allowExecutions()
 }
 
-@Suppress("unused")
+/**
+ * Manager that is able to execute commands with appropriate strategy while CoroutineScope is active
+ */
 class CommandManagerImpl<State>(
     private val dataState: MutableLiveData<State>,
     private val coroutineScope: CoroutineScope
@@ -36,10 +51,6 @@ class CommandManagerImpl<State>(
     private val pendingActionCommands = mutableListOf<ActionCommand<*, State>>()
     private val runningActionCommands = mutableListOf<ActionCommand<*, State>>()
 
-    /**
-     * Will post command to execution queue.
-     * Command may not be added to the pending queue - strategy rules this.
-     */
     @MainThread
     override fun postCommand(actionCommand: ActionCommand<*, State>) {
         addToPendingActionsIfShould(actionCommand)
