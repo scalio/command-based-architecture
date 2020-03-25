@@ -65,6 +65,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
 
 
 abstract class ChildCommandManager<ChildState, ChildKey, ChildModel : ChildViewModel<ChildKey>>(
+    protected val key: ChildKey,
     private val commandManager: CommandManager<DataState<ChildKey, ChildModel>>,
     private val feedTypedLiveData: LiveData<ChildState>
 ) : CommandManager<ChildState> {

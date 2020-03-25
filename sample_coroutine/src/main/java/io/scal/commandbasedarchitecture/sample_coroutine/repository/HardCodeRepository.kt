@@ -3,7 +3,6 @@ package io.scal.commandbasedarchitecture.sample_coroutine.repository
 import io.scal.commandbasedarchitecture.sample_coroutine.model.MainItem
 import kotlinx.coroutines.delay
 import java.security.SecureRandom
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 object HardCodeRepository {
@@ -23,22 +22,27 @@ object HardCodeRepository {
         if (random.nextInt(100) < 90) {
             val result = (0 until pageSize)
                 .map {
-                    val uid = nextUid()
-                    MainItem(uid, uid, "${page * pageSize + it}\u00A0${nextTitle()}")
+                    val uid = nextUid(page, it, pageSize)
+                    MainItem(uid, uid, nextTitle())
                 }
-            return if (random.nextBoolean()) result else emptyList()
+            return if (random.nextInt(100) < 80) result else emptyList()
         } else {
             throw IllegalStateException("page loading error")
         }
     }
 
-    suspend fun changeFavoriteStatus(itemUid: String, newFavoriteState: Boolean) {
-        delay(random.nextInt(5000).toLong())
+    suspend fun loadItemDetails(itemUid: String): MainItem {
+        delay(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS))
 
-        if (random.nextBoolean()) throw IllegalStateException("random favorite change error for: $itemUid")
+        return MainItem(
+            itemUid,
+            itemUid,
+            "if you use Broadcast - title and any favorite changes will be shown on the list screen too"
+        )
     }
 
-    private fun nextUid(): String = UUID.randomUUID().toString()
+    private fun nextUid(page: Int, it: Int, pageSize: Int): String =
+        (page * pageSize + it).toString()
 
     private fun nextTitle(): String {
         val sizeOfRandomString = random.nextInt(5) + 4
@@ -46,5 +50,11 @@ object HardCodeRepository {
         for (i in 0 until sizeOfRandomString)
             sb.append(allowedCharacters[random.nextInt(allowedCharacters.length)])
         return sb.toString()
+    }
+
+    suspend fun changeFavoriteStatus(itemUid: String, newFavoriteState: Boolean) {
+        delay(random.nextInt(5000).toLong())
+
+        if (random.nextBoolean()) throw IllegalStateException("random favorite change error for: $itemUid")
     }
 }
