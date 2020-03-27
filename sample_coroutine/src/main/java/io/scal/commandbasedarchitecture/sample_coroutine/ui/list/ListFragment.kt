@@ -60,6 +60,7 @@ class ListFragment : Fragment() {
 
         srlData.setOnRefreshListener { viewModelInstance.reload() }
 
+        // simple realization for next page loading trigger
         rvData.listenForEndScroll(4) { viewModelInstance.loadNextPage() }
     }
 
@@ -72,20 +73,24 @@ class ListFragment : Fragment() {
 
                     val items = dataState.dataAndNextPageLoadingStatus
                     when {
+                        // we do not have any data or next page loading status -> empty loading or empty error state
                         items == null -> {
                             emptyData.visibility = View.GONE
                             if (dataState.refreshStatus is UIProgressErrorItem.Progress) {
+                                // we do not want double progress indicator for loading, we just use STR all the time
                                 showNoProgressErrorState(progressError)
                             } else {
                                 dataState.refreshStatus.handleProgressErrorState(progressError)
                             }
                             adapter.releaseData()
                         }
+                        // we do not have any data -> empty data state
                         items.isEmpty() -> {
                             emptyData.visibility = View.VISIBLE
                             showNoProgressErrorState(progressError)
                             adapter.releaseData()
                         }
+                        // we have some data to show -> data state
                         else -> {
                             emptyData.visibility = View.GONE
                             showNoProgressErrorState(progressError)
@@ -93,6 +98,7 @@ class ListFragment : Fragment() {
                         }
                     }
 
+                    // we always show STR progress if any
                     srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
                 }
             )

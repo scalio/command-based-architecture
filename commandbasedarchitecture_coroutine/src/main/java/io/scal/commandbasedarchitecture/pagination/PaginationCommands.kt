@@ -34,7 +34,7 @@ open class RefreshCommand<
         dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
         result: Data
     ): PaginationState<UIBaseItem, UIDataItem, Data> =
-        dataState.copy(pageData = result, refreshStatus = null)
+        PaginationState(pageData = result)
 
     override fun onExecuteFail(
         dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
@@ -44,7 +44,7 @@ open class RefreshCommand<
 }
 
 /**
- * Command that will execute load next data action with showing page progress and Single strategy.
+ * Command that will execute load next data action while showing page progress and Single strategy.
  * That means only one load next command is able to execute and be added to the queue.
  */
 open class LoadNextCommand<
@@ -86,6 +86,10 @@ open class LoadNextCommand<
         dataState.copy(nextPageLoadingStatus = errorToUIItem(error))
 }
 
+/**
+ * Command that will execute load next data action while showing page progress and Single strategy.
+ * That means only one load next command is able to executed and added to the queue.
+ */
 open class LoadNextWithPageNumberCommand<
         UIBaseItem,
         UIDataItem : UIBaseItem,
@@ -129,6 +133,10 @@ open class LoadNextWithPageNumberCommand<
                 super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
 }
 
+/**
+ * Command that will execute load next data action while showing page progress and Single strategy.
+ * That means only one load next command is able to be executed and added to the queue.
+ */
 open class LoadNextWithLatestItemCommand<
         UIBaseItem,
         UIDataItem : UIBaseItem,
