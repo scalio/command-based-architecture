@@ -52,9 +52,7 @@ By default CommandManager use `Dispatchers.Main` for execution so you will have 
 
 ## Customizations
 
-You can enable and disable circular loop using two arguments constructor. Pass true to enable loop and false to disable.
-
-You can make carousel Vertically and Horizontally by changing first argument.
+TBD
 
 
 ## Example
