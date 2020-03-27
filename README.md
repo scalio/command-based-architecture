@@ -65,7 +65,7 @@ You can make carousel Vertically and Horizontally by changing first argument.
 
 Feel free to get in touch.
 
-    Website:    http://scal.io
+    Website:    https://scal.io
     LinkedIn:   https://www.linkedin.com/company/scalio/
     LinkedIn:   https://www.linkedin.com/in/mig35/
     Email:      mikhail@scal.io
