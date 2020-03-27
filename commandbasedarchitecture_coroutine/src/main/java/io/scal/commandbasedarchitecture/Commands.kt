@@ -9,7 +9,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
     open val strategy: StateStrategy? = null
 
     /**
-     * Called when command was allowed to pending commands and is waiting for execution.
+     * Called when command was added to pending commands and is awaiting execution.
      * Good place to change data based for immediate ui update.
      */
     open fun onCommandWasAdded(dataState: DataState): DataState = dataState
@@ -46,7 +46,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
     open fun onExecuteFinished(dataState: DataState): DataState = dataState
 
     /**
-     * Controls if command should be added to pending quire or not based on current data state
+     * Controls if command should be added to pending queue or not based on current data state
      * @return true if should be added or false if should be dropped
      */
     abstract fun shouldAddToPendingActions(
@@ -57,16 +57,16 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
 
     /**
      * Method to control other tasks.
-     * Will be called only if current task is in execution state and pendingActionCommand wants to be executed right now.
+     * Will be called only if current task is in execution state and pendingActionCommand needs to be executed immediately.
      *
      * @return true if pendingActionCommand should wait some time (usually for current command execution finish), false if other command can be executed in parallel mode
      */
     abstract fun shouldBlockOtherTask(pendingActionCommand: ActionCommand<*, *>): Boolean
 
     /**
-     * Method to control that current command is able to execute now.
+     * Method to control that current command is able to execute immediately.
      *
-     * @return true if current command is able execute right now, false - if command should wait some time
+     * @return true if current command is able execute immediately, false - if command should wait some time
      */
     abstract fun shouldExecuteAction(
         dataState: DataState,
@@ -77,7 +77,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
 
 
 /**
- * Command that route all execution strategy methods to a separate class StateStrategy
+ * Command that routes all execution strategy methods to a separate class StateStrategy
  * @see StateStrategy
  */
 abstract class ActionCommandWithStrategy<CommandResult, DataState : Any?>(
@@ -196,7 +196,8 @@ open class SingleStrategy : StateStrategy {
 }
 
 /**
- * Same as SingleStrategy but will be added to the pending queue only if there are no pending or running task with a strategy with the same tag.
+ * Same as SingleStrategy but will be added to the pending queue only if there are no pending or
+ * running task with a strategy of the same tag.
  */
 open class SingleWithTagStrategy(private val tag: String) : SingleStrategy() {
 

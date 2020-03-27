@@ -20,7 +20,7 @@ open class PageData<UIItem>(
 }
 
 /**
- * Usual simple pagination realization that based on page number and page size.
+ * Usual simple pagination realization that is based on page number and page size.
  * This class will store this information.
  */
 open class PageDataWithNextPageNumber<UIItem>(
@@ -39,7 +39,7 @@ open class PageDataWithNextPageNumber<UIItem>(
 }
 
 /**
- * Simple pagination realization that based on latest loaded item (usually its id or date).
+ * Simple pagination realization that is based on latest loaded item (usually its id or date).
  * This class will store this information.
  */
 open class PageDataWithLatestItem<UIItem>(

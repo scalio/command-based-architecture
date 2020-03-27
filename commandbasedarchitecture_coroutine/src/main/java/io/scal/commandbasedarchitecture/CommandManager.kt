@@ -13,20 +13,20 @@ import java.util.concurrent.atomic.AtomicBoolean
 interface CommandManager<State> {
 
     /**
-     * Add command to pending quire if command allows that
+     * Add command to pending queue if command allows that
      * @see StateStrategy
      */
     @MainThread
     fun postCommand(actionCommand: ActionCommand<*, State>)
 
     /**
-     * Remove all pending commands that fits the rule
+     * Remove all pending commands that fit the rule
      */
     @MainThread
     fun clearPendingCommands(clearRule: (ActionCommand<*, State>) -> Boolean)
 
     /**
-     * Will block any pending commands from run. All already running tasks will be executed normally
+     * Will block any pending commands from run. All currently running tasks will be executed normally
      */
     @MainThread
     fun blockExecutions()
@@ -39,7 +39,7 @@ interface CommandManager<State> {
 }
 
 /**
- * Manager that is able to execute commands with appropriate strategy while CoroutineScope is active
+ * Manager that executes commands with appropriate strategy while CoroutineScope is active
  */
 class CommandManagerImpl<State>(
     private val dataState: MutableLiveData<State>,
