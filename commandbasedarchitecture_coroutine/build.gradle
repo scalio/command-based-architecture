@@ -1,6 +1,87 @@
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
+        classpath "com.github.dcendents:android-maven-plugin:1.2"
+    }
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
+
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+//////////////////////////////// Upload to BinTray ////////////////////////////////
+group = "io.scal"
+final def siteUrl = 'https://github.com/scalio/command-based-architecture'
+final def gitUrl = "https://github.com/scalio/command-based-architecture.git"
+// This is the library version used when deploying the artifact
+version = "0.0.2"
+
+final Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ["archives"]
+    pkg {
+        repo = "android-maven"
+        name = "command-based-architecture-coroutine"
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'jar'
+
+            // Add your description here
+            name "Command Based Architecture for simple synchronization logic. Description is here: https://github.com/scalio/command-based-architecture"
+            url siteUrl
+
+            // Set your license
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers {
+                developer {
+                    id 'mig35'
+                    name 'Mikhail Gurevich'
+                    email 'mig35@mig35.com'
+                }
+                developer {
+                    id 'scalio'
+                    name 'Scalio'
+                    url 'https://scal.io'
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
+                url siteUrl
+            }
+        }
+    }
+}
+//////////////////////////////// Upload to BinTray ////////////////////////////////
+
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -17,7 +98,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
         }
     }
 }
@@ -31,4 +112,20 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5"
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.architectureComponentsVersion}"
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set("sources")
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+// Excluding aar artifacts from uploading
+configurations.archives.artifacts.with { archives ->
+    for (def iter = archives.iterator(); iter.hasNext();) {
+        if (iter.next().file =~ 'aar') iter.remove();
+    }
 }
