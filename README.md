@@ -1,21 +1,21 @@
-Android Command Based Architecture for processing concurent tasks (commands) on single or multiply data
+Android Command Based Architecture for processing concurrent tasks (commands) on single or multiple data sources
 ======================
 
 ## Features
 
-This library allows to execute different tasks on different threads and sync them between each other.
+This library supports the execution and synchronization of different tasks on multiple threads.
 
 Key features in flow control:
-1. Ability to controll if task should ever be executed or skipped based on current data (screen) state.
-2. Ability to controll if task should be executed right now or later based on current data (screen) state.
-3. Ability to block other tasks from execution (postope them) during task execution.
+1. Ability to control if a task should be executed or skipped based on current data (screen) state.
+2. Ability to control if a task should be executed immediately or delayed based on current data (screen) state.
+3. Ability to block/postpone other tasks during task execution.
 
 Key features in data change:
 Each task has its own lifecycle:
 1. After command was added to the queue - `onCommandWasAdded`
-2. Right before command execution - `onExecuteStarting`
-3. Right after succesful execution - `onExecuteSuccess`
-4. Right after failed execution - `onExecuteFail`
+2. Immediately before command execution - `onExecuteStarting`
+3. Immediately after successful execution - `onExecuteSuccess`
+4. Immediately after failed execution - `onExecuteFail`
 5. Final step of execution (called on any success or fail) - `onExecuteFinished`
 
 ## Integration with Gradle
@@ -38,16 +38,16 @@ Please replace `version` with the latest version: [![Download](https://api.bintr
 
 ## How to use
 
-Please find full description in [Medium post TODO](https://medium.com).
+Please find the full description in [Medium post TODO](https://medium.com).
 
-Usual realization requires this steps:
+Basic Setup:
 1. Create an instance of CommandManager: `val commandManager: CommandManager<ScreenState> by lazy { CommandManagerImpl(mutableScreenState, viewModelScope) }`
-2. Create your command or use an existing command (RefreshCommand, LoadNextCommand).
-    a. Implement execution strategy directly in command or use existing or yours (ExecutionStrategy class)
-    b. Implemet data side effects during command lifecycle
+2. Use an existing or create a custom command (RefreshCommand, LoadNextCommand).
+    a. Implement execution strategy directly in the command (ExecutionStrategy class)
+    b. Implement data side effects during command lifecycle
 3. Add command to execution queue by calling `commandManager.postCommand(yourCommand)`
 
-By default CommandManager use `Dispatchers.Main` for execution so you will have to switch to appropriate Diapatcher if you do something hard in this command.
+By default, the CommandManager uses `Dispatchers.Main` for execution, so you will need to switch to an appropriate Dispatcher if you require more complex logic.
 
 
 ## Customizations
@@ -61,7 +61,7 @@ TBD
 
 #### Contact ####
 
-Feel free to get in touch.
+Feel free to reach out to me.
 
     Website:    https://scal.io
     LinkedIn:   https://www.linkedin.com/company/scalio/
