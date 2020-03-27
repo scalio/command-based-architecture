@@ -12,7 +12,7 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
  * 1. Only one command per item
  * 2. Only latest update will be pushed to server
  * 3. Immediate user response for the change
- * 4. Good revert logic if request failed
+ * 4. Good revert logic if request fails
  */
 internal class ChangeFavoriteStatusCommand(
     private val mainItemUid: String,
@@ -22,7 +22,7 @@ internal class ChangeFavoriteStatusCommand(
 ) : ActionCommandWithStrategy<Unit, ListScreenState>(ConcurrentStrategy(mainItemUid)) {
 
     override fun onCommandWasAdded(dataState: ListScreenState): ListScreenState =
-        // we update item state only if list contains this item
+        // we update item state only if the list contains this item
         if (dataState.pageData?.itemsList?.any { it.key == mainItemUid } == true) {
             dataState.copy(
                 pageData = dataState.pageData?.updateItemFavoriteState {

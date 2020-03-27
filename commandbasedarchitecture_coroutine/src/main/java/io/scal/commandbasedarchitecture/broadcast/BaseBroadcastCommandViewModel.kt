@@ -17,8 +17,8 @@ interface ChildViewModel<ChildKey> {
 /**
  * Broadcast data state class
  *
- * @param hardViewModels view models that should be kept all the time after the first request
- * @param weakViewModels view models that will be kept until they will not be cleared by gc
+ * @param hardViewModels view models that should be kept permanently after the first request
+ * @param weakViewModels view models that will be kept until cleared by gc
  */
 data class DataState<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
     val hardViewModels: Map<ChildKey, ChildModel>,
@@ -30,7 +30,7 @@ data class DataState<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
 }
 
 /**
- * ViewModel that will store all child view models and return already existing one for the same key.
+ * ViewModel that will store all child view models and return already existing one with the same key.
  */
 abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewModel<ChildKey>> {
 
@@ -50,7 +50,8 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
     /**
      * Will get existing view model with the same key or create a new one
      *
-     * @param hardViewModel is used to determinate where to put new constructed view model too: hardViewModels or weakViewModels
+     * @param hardViewModel is used to determinate how to store the newly constructed view model: hardViewModels
+     * or weakViewModels
      * @see DataState
      */
     protected fun getChildViewModel(childKey: ChildKey, hardViewModel: Boolean): ChildModel {
@@ -96,7 +97,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
 
 /**
  * CommandManager that will broadcast all new state for all existing view models.
- * It is up to you how you will update each view model and update there state.
+ * It is up to you how you will update each view model and their state.
  */
 abstract class ChildCommandManager<ChildState, ChildKey, ChildModel : ChildViewModel<ChildKey>>(
     protected val key: ChildKey,

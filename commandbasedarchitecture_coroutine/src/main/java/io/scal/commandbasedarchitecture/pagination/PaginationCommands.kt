@@ -44,7 +44,7 @@ open class RefreshCommand<
 }
 
 /**
- * Command that will execute load next data action with showing page progress and Single strategy.
+ * Command that will execute load next data action while showing page progress and Single strategy.
  * That means only one load next command is able to execute and be added to the queue.
  */
 open class LoadNextCommand<
@@ -87,8 +87,8 @@ open class LoadNextCommand<
 }
 
 /**
- * Command that will execute load next data action with showing page progress and Single strategy.
- * That means only one load next command is able to execute and be added to the queue.
+ * Command that will execute load next data action while showing page progress and Single strategy.
+ * That means only one load next command is able to executed and added to the queue.
  */
 open class LoadNextWithPageNumberCommand<
         UIBaseItem,
@@ -134,8 +134,8 @@ open class LoadNextWithPageNumberCommand<
 }
 
 /**
- * Command that will execute load next data action with showing page progress and Single strategy.
- * That means only one load next command is able to execute and be added to the queue.
+ * Command that will execute load next data action while showing page progress and Single strategy.
+ * That means only one load next command is able to be executed and added to the queue.
  */
 open class LoadNextWithLatestItemCommand<
         UIBaseItem,
