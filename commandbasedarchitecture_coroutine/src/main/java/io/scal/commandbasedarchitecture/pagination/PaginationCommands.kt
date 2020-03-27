@@ -18,7 +18,7 @@ open class RefreshCommand<
     private val refreshAction: suspend (PaginationState<UIBaseItem, UIDataItem, Data>) -> Data,
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
-    strategy: StateStrategy = RefreshStrategy()
+    strategy: ExecutionStrategy = RefreshStrategy()
 ) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
 
     override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
@@ -57,7 +57,7 @@ open class LoadNextCommand<
     private val loadNextAction: suspend (PaginationState<UIBaseItem, UIDataItem, Data>) -> Data,
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
-    strategy: StateStrategy = LoadNextStrategy()
+    strategy: ExecutionStrategy = LoadNextStrategy()
 ) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
 
     override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
@@ -100,7 +100,7 @@ open class LoadNextWithPageNumberCommand<
     private val loadNextAction: suspend (nextPageNumber: Int) -> Data,
     progressUiItem: () -> UIProgressItem,
     errorToUIItem: (Throwable) -> UIErrorItem,
-    strategy: StateStrategy = LoadNextStrategy()
+    strategy: ExecutionStrategy = LoadNextStrategy()
 ) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
     LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
         { loadNextAction(it.pageData!!.nextPageNumber!!) },

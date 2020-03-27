@@ -10,7 +10,7 @@ const val PAGE_SIZE = 20
 
 abstract class ListViewModel(application: Application) : AndroidViewModel(application) {
 
-    abstract val dataState: LiveData<ListScreenState>
+    abstract val screenState: LiveData<ListScreenState>
     abstract val commandManager: CommandManager<ListScreenState>
 
     abstract fun reload()

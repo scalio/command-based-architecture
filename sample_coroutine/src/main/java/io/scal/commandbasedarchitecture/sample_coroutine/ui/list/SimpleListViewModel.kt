@@ -18,12 +18,12 @@ import kotlinx.coroutines.withContext
 
 class SimpleListViewModel(application: Application) : ListViewModel(application) {
 
-    private val mutableDataState = MutableLiveData(
+    private val mutableScreenState = MutableLiveData(
         ListScreenState(null, null, null)
     )
-    override val dataState: LiveData<ListScreenState> = mutableDataState
+    override val screenState: LiveData<ListScreenState> = mutableScreenState
     override val commandManager: CommandManager<ListScreenState> by lazy {
-        CommandManagerImpl(mutableDataState, viewModelScope)
+        CommandManagerImpl(mutableScreenState, viewModelScope)
     }
 
     init {

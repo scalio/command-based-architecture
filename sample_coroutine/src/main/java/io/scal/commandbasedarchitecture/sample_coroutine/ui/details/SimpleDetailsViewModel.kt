@@ -16,14 +16,14 @@ import kotlinx.coroutines.withContext
 
 class SimpleDetailsViewModel(application: Application) : DetailsViewModel(application) {
 
-    private val mutableDataState = MutableLiveData(
+    private val mutableScreenState = MutableLiveData(
         DetailsScreenState(null, null)
     )
 
-    override val dataState: LiveData<DetailsScreenState> = mutableDataState
+    override val screenState: LiveData<DetailsScreenState> = mutableScreenState
 
     private val commandManager: CommandManager<DetailsScreenState> by lazy {
-        CommandManagerImpl(mutableDataState, viewModelScope)
+        CommandManagerImpl(mutableScreenState, viewModelScope)
     }
 
 

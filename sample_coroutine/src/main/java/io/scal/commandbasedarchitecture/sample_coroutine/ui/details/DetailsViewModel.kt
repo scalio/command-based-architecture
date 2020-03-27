@@ -9,7 +9,7 @@ abstract class DetailsViewModel(application: Application) : AndroidViewModel(app
 
     lateinit var itemUid: String
 
-    abstract val dataState: LiveData<DetailsScreenState>
+    abstract val screenState: LiveData<DetailsScreenState>
 
     abstract fun reload()
 
