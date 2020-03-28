@@ -16,7 +16,7 @@ class BroadcastDetailsViewModel(application: Application) : DetailsViewModel(app
         rootBroadcastViewModel.getChildViewModel(ItemsBroadcastTypes.OneItem(itemUid))
     }
 
-    override val dataState: LiveData<DetailsScreenState> by lazy {
+    override val screenState: LiveData<DetailsScreenState> by lazy {
         childViewModel.childLiveData
             .map { DetailsScreenState(it.pageData?.itemsList?.firstOrNull(), it.refreshStatus) }
     }

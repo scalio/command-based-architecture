@@ -11,7 +11,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
     protected val outerToInnerResult: OuterResult.() -> InnerResult
 ) : ActionCommand<OuterResult, OuterData>() {
 
-    override val strategy: StateStrategy? = innerCommand.strategy
+    override val strategy: ExecutionStrategy? = innerCommand.strategy
 
     override fun onCommandWasAdded(dataState: OuterData): OuterData {
         val innerData = dataState.outerToInnerData()

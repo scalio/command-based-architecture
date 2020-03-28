@@ -14,7 +14,7 @@ interface CommandManager<State> {
 
     /**
      * Add command to pending queue if command allows that
-     * @see StateStrategy
+     * @see ExecutionStrategy
      */
     @MainThread
     fun postCommand(actionCommand: ActionCommand<*, State>)

@@ -6,7 +6,7 @@ package io.scal.commandbasedarchitecture
  */
 abstract class ActionCommand<CommandResult, DataState : Any?> {
 
-    open val strategy: StateStrategy? = null
+    open val strategy: ExecutionStrategy? = null
 
     /**
      * Called when command was added to pending commands and is awaiting execution.
@@ -78,10 +78,10 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
 
 /**
  * Command that routes all execution strategy methods to a separate class StateStrategy
- * @see StateStrategy
+ * @see ExecutionStrategy
  */
 abstract class ActionCommandWithStrategy<CommandResult, DataState : Any?>(
-    override val strategy: StateStrategy
+    override val strategy: ExecutionStrategy
 ) : ActionCommand<CommandResult, DataState>() {
 
     override fun shouldAddToPendingActions(
@@ -105,7 +105,7 @@ abstract class ActionCommandWithStrategy<CommandResult, DataState : Any?>(
 /**
  * Strategy that will be used by CommandManager to control command execution flow.
  */
-interface StateStrategy {
+interface ExecutionStrategy {
 
     /**
      * Called before adding command to pending.
@@ -141,7 +141,7 @@ interface StateStrategy {
  * If tag is not null - allows concurrent execution only if there are no running commands with same strategy and tag.
  * Also will remove any pending command with the same tag and replace by a new one.
  */
-open class ConcurrentStrategy(private val tag: String? = null) : StateStrategy {
+open class ConcurrentStrategy(private val tag: String? = null) : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
@@ -176,7 +176,7 @@ open class ConcurrentStrategy(private val tag: String? = null) : StateStrategy {
  * Will be added to the queue only if there are no other tasks with this strategy in pending and running queues.
  * Will be executed only as a single task and block all other tasks from execution.
  */
-open class SingleStrategy : StateStrategy {
+open class SingleStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,

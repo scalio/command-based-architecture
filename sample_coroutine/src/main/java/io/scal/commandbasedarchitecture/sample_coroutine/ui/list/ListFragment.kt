@@ -65,7 +65,7 @@ class ListFragment : Fragment() {
     }
 
     private fun initStateModel() {
-        viewModelInstance.dataState
+        viewModelInstance.screenState
             .observe(
                 viewLifecycleOwner,
                 Observer { dataState ->
