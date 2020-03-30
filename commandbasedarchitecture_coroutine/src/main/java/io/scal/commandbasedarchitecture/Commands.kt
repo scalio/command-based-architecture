@@ -12,7 +12,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * Called when command was added to pending commands and is awaiting execution.
      * Good place to change data based for immediate ui update.
      *
-     * This method may be called multiply times
+     * This method may be called multiple times
      */
     open fun onCommandWasAdded(dataState: DataState): DataState = dataState
 
@@ -62,7 +62,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
     /**
      * Controls if command should be added to pending queue or not based on current data state
      *
-     * This method may be called multiply times
+     * This method may be called multiple times
      *
      * @return true if should be added or false if should be dropped
      */
@@ -76,7 +76,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * Method to control other tasks.
      * Will be called only if current task is in execution state and pendingActionCommand needs to be executed immediately.
      *
-     * This method may be called multiply times
+     * This method may be called multiple times
      *
      * @return true if pendingActionCommand should wait some time (usually for current command execution finish), false if other command can be executed in parallel mode
      */
@@ -85,7 +85,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
     /**
      * Method to control that current command is able to execute immediately.
      *
-     * This method may be called multiply times
+     * This method may be called multiple times
      *
      * @return true if current command is able execute immediately, false - if command should wait some time
      */
@@ -179,7 +179,7 @@ open class ConcurrentStrategy : ExecutionStrategy {
 
 /**
  * Allows concurrent execution only if there are no running commands with same strategy and tag.
- * Also will remove any pending command with the same tag and replace by a new one.
+ * Also will remove any pending command with the same tag and replace with a new one.
  */
 open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy() {
 
