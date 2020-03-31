@@ -11,11 +11,15 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
     /**
      * Called when command was added to pending commands and is awaiting execution.
      * Good place to change data based for immediate ui update.
+     *
+     * This method may be called multiple times
      */
     open fun onCommandWasAdded(dataState: DataState): DataState = dataState
 
     /**
-     * Called right before command start execution.
+     * Called right before command starts execution
+     *
+     * This method may be called only once
      */
     open fun onExecuteStarting(dataState: DataState): DataState = dataState
 
@@ -23,30 +27,43 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * Main command execution method. Method may execute normally or with exception.
      * Normal execution will trigger onExecuteSuccess, fail - onExecuteFail
      *
+     * This method may be called only once
+     *
      * @see ActionCommand.onExecuteSuccess
      * @see ActionCommand.onExecuteFail
      */
     abstract suspend fun executeCommand(dataState: DataState): CommandResult
 
     /**
-     * Called if command executed normally.
+     * Called if command executed normally
+     *
+     * This method may be called only once
+     *
      * @param result result of the execution
      */
     open fun onExecuteSuccess(dataState: DataState, result: CommandResult): DataState = dataState
 
     /**
      * Called if command executed normally
+     *
+     * This method may be called only once
+     *
      * @param error exception that was thrown during execution
      */
     open fun onExecuteFail(dataState: DataState, error: Throwable): DataState = dataState
 
     /**
      * Always called after success or fail
+     *
+     * This method may be called only once
      */
     open fun onExecuteFinished(dataState: DataState): DataState = dataState
 
     /**
      * Controls if command should be added to pending queue or not based on current data state
+     *
+     * This method may be called multiple times
+     *
      * @return true if should be added or false if should be dropped
      */
     abstract fun shouldAddToPendingActions(
@@ -59,12 +76,16 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * Method to control other tasks.
      * Will be called only if current task is in execution state and pendingActionCommand needs to be executed immediately.
      *
+     * This method may be called multiple times
+     *
      * @return true if pendingActionCommand should wait some time (usually for current command execution finish), false if other command can be executed in parallel mode
      */
     abstract fun shouldBlockOtherTask(pendingActionCommand: ActionCommand<*, *>): Boolean
 
     /**
      * Method to control that current command is able to execute immediately.
+     *
+     * This method may be called multiple times
      *
      * @return true if current command is able execute immediately, false - if command should wait some time
      */
@@ -136,25 +157,15 @@ interface ExecutionStrategy {
 }
 
 /**
- * If tag is null - allows concurrent execution always.
- *
- * If tag is not null - allows concurrent execution only if there are no running commands with same strategy and tag.
- * Also will remove any pending command with the same tag and replace by a new one.
+ * Allows concurrent execution always.
  */
-open class ConcurrentStrategy(private val tag: String? = null) : ExecutionStrategy {
+open class ConcurrentStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        if (null == tag) {
-            true
-        } else {
-            pendingActionCommands.removeAll { command ->
-                command.strategy.let { it is ConcurrentStrategy && it.tag == tag }
-            }
-            true
-        }
+        true
 
     override fun shouldBlockOtherTask(pendingActionCommand: ActionCommand<*, *>): Boolean =
         false
@@ -163,12 +174,31 @@ open class ConcurrentStrategy(private val tag: String? = null) : ExecutionStrate
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        if (null == tag) {
-            true
-        } else {
-            !runningActionCommands.any { command ->
-                command.strategy.let { it is ConcurrentStrategy && it.tag == tag }
-            }
+        true
+}
+
+/**
+ * Allows concurrent execution only if there are no running commands with same strategy and tag.
+ * Also will remove any pending command with the same tag and replace with a new one.
+ */
+open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy() {
+
+    override fun shouldAddToPendingActions(
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        runningActionCommands: List<ActionCommand<*, *>>
+    ): Boolean {
+        pendingActionCommands.removeAll { command ->
+            command.strategy.let { it is ConcurrentStrategyWithTag && it.tag == tag }
+        }
+        return true
+    }
+
+    override fun shouldExecuteAction(
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        runningActionCommands: List<ActionCommand<*, *>>
+    ): Boolean =
+        !runningActionCommands.any { command ->
+            command.strategy.let { it is ConcurrentStrategyWithTag && it.tag == tag }
         }
 }
 
@@ -199,7 +229,7 @@ open class SingleStrategy : ExecutionStrategy {
  * Same as SingleStrategy but will be added to the pending queue only if there are no pending or
  * running task with a strategy of the same tag.
  */
-open class SingleWithTagStrategy(private val tag: String) : SingleStrategy() {
+open class SingleWithTagStrategy(private val tag: Any) : SingleStrategy() {
 
     override fun shouldAddToPendingActions(
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
