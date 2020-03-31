@@ -2,7 +2,7 @@ package io.scal.commandbasedarchitecture.sample_coroutine.ui.list.commands
 
 import io.scal.commandbasedarchitecture.ActionCommandWithStrategy
 import io.scal.commandbasedarchitecture.ConcurrentStrategyWithTag
-import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
+import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.FavoriteState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem

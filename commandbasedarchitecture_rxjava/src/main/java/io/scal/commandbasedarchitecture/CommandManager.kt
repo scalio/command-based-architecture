@@ -2,10 +2,11 @@ package io.scal.commandbasedarchitecture
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.MutableLiveData
+import io.reactivex.Completable
+import io.reactivex.Scheduler
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.scal.commandbasedarchitecture.model.toRemoveOnlyList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -44,7 +45,8 @@ interface CommandManager<State> {
  */
 class CommandManagerImpl<State>(
     private val dataState: MutableLiveData<State>,
-    private val coroutineScope: CoroutineScope
+    private val mainThreadScheduler: Scheduler,
+    private val compositeDisposable: CompositeDisposable
 ) : CommandManager<State> {
 
     private val activated = AtomicBoolean(true)
@@ -119,31 +121,49 @@ class CommandManagerImpl<State>(
     }
 
     private fun <Result> executeCommand(actionCommand: ActionCommand<Result, State>) {
-        coroutineScope
-            .launch(Dispatchers.Main) {
-                try {
-                    dataState.setValueIfNotTheSame(
-                        actionCommand.onExecuteStarting(getCurrentDataState())
-                    )
-
-                    val result = actionCommand.executeCommand(getCurrentDataState())
-                    dataState.setValueIfNotTheSame(
-                        actionCommand.onExecuteSuccess(getCurrentDataState(), result)
-                    )
-                } catch (e: Throwable) {
-                    dataState.setValueIfNotTheSame(
-                        actionCommand.onExecuteFail(getCurrentDataState(), e)
-                    )
-                }
+        val disposable = Completable
+            .fromAction {
                 dataState.setValueIfNotTheSame(
-                    actionCommand.onExecuteFinished(getCurrentDataState())
+                    actionCommand.onExecuteStarting(getCurrentDataState())
                 )
             }
-            .invokeOnCompletion {
+            .subscribeOn(mainThreadScheduler)
+            .observeOn(mainThreadScheduler)
+            .andThen(
+                Single
+                    .fromCallable { getCurrentDataState() }
+                    .flatMap { actionCommand.executeCommand(it) }
+            )
+            .observeOn(mainThreadScheduler)
+            .doOnDispose {
                 runningActionCommands.remove(actionCommand)
-
-                if (null == it) runPendingActions()
             }
+            .subscribe(
+                {
+                    dataState.setValueIfNotTheSame(
+                        actionCommand.onExecuteSuccess(getCurrentDataState(), it)
+                    )
+
+                    onRunningTaskFinished(actionCommand)
+                },
+                {
+                    dataState.setValueIfNotTheSame(
+                        actionCommand.onExecuteFail(getCurrentDataState(), it)
+                    )
+
+                    onRunningTaskFinished(actionCommand)
+                }
+            )
+        compositeDisposable.add(disposable)
+    }
+
+    private fun <Result> onRunningTaskFinished(actionCommand: ActionCommand<Result, State>) {
+        dataState.setValueIfNotTheSame(
+            actionCommand.onExecuteFinished(getCurrentDataState())
+        )
+        runningActionCommands.remove(actionCommand)
+
+        runPendingActions()
     }
 
     @Suppress("UNCHECKED_CAST")

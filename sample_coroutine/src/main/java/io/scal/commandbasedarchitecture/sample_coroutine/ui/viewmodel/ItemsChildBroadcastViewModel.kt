@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import io.scal.commandbasedarchitecture.CommandManager
 import io.scal.commandbasedarchitecture.broadcast.ChildViewModel
-import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
+import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState

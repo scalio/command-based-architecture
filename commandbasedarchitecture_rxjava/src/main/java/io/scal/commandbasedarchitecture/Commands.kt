@@ -1,5 +1,6 @@
 package io.scal.commandbasedarchitecture
 
+import io.reactivex.Single
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 import io.scal.commandbasedarchitecture.model.removeAll
 
@@ -35,7 +36,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * @see ActionCommand.onExecuteSuccess
      * @see ActionCommand.onExecuteFail
      */
-    abstract suspend fun executeCommand(dataState: DataState): CommandResult
+    abstract fun executeCommand(dataState: DataState): Single<CommandResult>
 
     /**
      * Called if command executed normally
@@ -71,7 +72,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      */
     abstract fun shouldAddToPendingActions(
         dataState: DataState,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean
 
@@ -94,7 +95,7 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      */
     abstract fun shouldExecuteAction(
         dataState: DataState,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean
 }
@@ -110,7 +111,7 @@ abstract class ActionCommandWithStrategy<CommandResult, DataState : Any?>(
 
     override fun shouldAddToPendingActions(
         dataState: DataState,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         strategy.shouldAddToPendingActions(pendingActionCommands, runningActionCommands)
@@ -120,7 +121,7 @@ abstract class ActionCommandWithStrategy<CommandResult, DataState : Any?>(
 
     override fun shouldExecuteAction(
         dataState: DataState,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         strategy.shouldExecuteAction(pendingActionCommands, runningActionCommands)
@@ -138,7 +139,7 @@ interface ExecutionStrategy {
      * @return if the command should be added to execution queue.
      */
     fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean
 
@@ -154,7 +155,7 @@ interface ExecutionStrategy {
      * @return true if command should be executed
      */
     fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean
 }
@@ -165,7 +166,7 @@ interface ExecutionStrategy {
 open class ConcurrentStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         true
@@ -174,7 +175,7 @@ open class ConcurrentStrategy : ExecutionStrategy {
         false
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         true
@@ -187,7 +188,7 @@ open class ConcurrentStrategy : ExecutionStrategy {
 open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy() {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean {
         pendingActionCommands.removeAll { command ->
@@ -197,7 +198,7 @@ open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy(
     }
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         !runningActionCommands.any { command ->
@@ -212,7 +213,7 @@ open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy(
 open class SingleStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         !pendingActionCommands.any { it.strategy is SingleStrategy }
@@ -222,7 +223,7 @@ open class SingleStrategy : ExecutionStrategy {
         true
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         runningActionCommands.isEmpty()
@@ -235,7 +236,7 @@ open class SingleStrategy : ExecutionStrategy {
 open class SingleWithTagStrategy(private val tag: Any) : SingleStrategy() {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         !pendingActionCommands.any { command ->

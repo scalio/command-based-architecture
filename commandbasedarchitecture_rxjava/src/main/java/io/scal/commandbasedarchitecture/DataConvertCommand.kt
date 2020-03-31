@@ -1,5 +1,6 @@
 package io.scal.commandbasedarchitecture
 
+import io.reactivex.Single
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
 /**
@@ -27,10 +28,10 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
         return returnOldOrNewData(dataState, innerData, newInnerData)
     }
 
-    override suspend fun executeCommand(dataState: OuterData): OuterResult =
-        executeCommandImpl(dataState).let { it.innerToOuterResult() }
+    override fun executeCommand(dataState: OuterData): Single<OuterResult> =
+        executeCommandImpl(dataState).map { it.innerToOuterResult() }
 
-    protected open suspend fun executeCommandImpl(dataState: OuterData): InnerResult =
+    protected open fun executeCommandImpl(dataState: OuterData): Single<InnerResult> =
         innerCommand.executeCommand(dataState.outerToInnerData())
 
     override fun onExecuteSuccess(dataState: OuterData, result: OuterResult): OuterData {
@@ -61,7 +62,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
 
     override fun shouldAddToPendingActions(
         dataState: OuterData,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         innerCommand.shouldAddToPendingActions(
@@ -75,7 +76,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
 
     override fun shouldExecuteAction(
         dataState: OuterData,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
+        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         innerCommand.shouldExecuteAction(

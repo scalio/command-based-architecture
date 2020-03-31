@@ -2,10 +2,10 @@ package io.scal.commandbasedarchitecture.sample_coroutine.ui.viewmodel
 
 import io.scal.commandbasedarchitecture.ActionCommand
 import io.scal.commandbasedarchitecture.DataConvertCommandSameResult
-import io.scal.commandbasedarchitecture.RemoveOnlyList
 import io.scal.commandbasedarchitecture.SingleWithTagStrategy
+import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
+import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 import io.scal.commandbasedarchitecture.pagination.LoadNextWithPageNumberCommand
-import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.pagination.RefreshCommand
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState

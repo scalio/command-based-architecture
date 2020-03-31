@@ -7,7 +7,7 @@ import io.scal.commandbasedarchitecture.CommandManager
 import io.scal.commandbasedarchitecture.broadcast.BaseBroadcastCommandViewModel
 import io.scal.commandbasedarchitecture.broadcast.ChildCommandManager
 import io.scal.commandbasedarchitecture.broadcast.DataState
-import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
+import io.scal.commandbasedarchitecture.model.applyNewDataToOtherState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState
 
 class ItemsRootBroadcastViewModel(
@@ -53,40 +53,13 @@ private class UsersChildCommandManager(
         childViewModel.childLiveData as MutableLiveData
         val stateToUpdate = childViewModel.childLiveData.value!!
         val updatedState =
-            applyNewDataToTypedState(stateToUpdate, newState, childViewModel.key == key)
+            applyNewDataToOtherState(
+                stateToUpdate,
+                newState,
+                childViewModel.key == key
+            ) { newItem, oldItem -> newItem.key == oldItem.key }
         if (stateToUpdate != updatedState) {
             childViewModel.childLiveData.value = updatedState
-        }
-    }
-
-    private fun applyNewDataToTypedState(
-        stateToUpdate: ListScreenState,
-        upToDateData: ListScreenState,
-        fullUpdate: Boolean
-    ): ListScreenState {
-        val currentPageData = upToDateData.pageData
-        return when {
-            fullUpdate -> upToDateData
-            null == currentPageData -> stateToUpdate
-            else -> {
-                val oldItems = stateToUpdate.pageData?.itemsList
-                if (null == oldItems) {
-                    stateToUpdate
-                } else {
-                    val updatedItems = oldItems.map { oldItem ->
-                        currentPageData.itemsList
-                            .firstOrNull { it.key == oldItem.key }
-                            ?: oldItem
-                    }
-                    if (updatedItems == oldItems) stateToUpdate
-                    else stateToUpdate.copy(
-                        pageData = PageDataWithNextPageNumber(
-                            updatedItems,
-                            currentPageData.nextPageNumber
-                        )
-                    )
-                }
-            }
         }
     }
 }

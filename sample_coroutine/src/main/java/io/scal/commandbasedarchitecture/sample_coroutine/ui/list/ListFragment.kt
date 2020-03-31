@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.scal.commandbasedarchitecture.pagination.dataAndNextPageLoadingStatus
+import io.scal.commandbasedarchitecture.model.dataAndNextPageLoadingStatus
 import io.scal.commandbasedarchitecture.sample_coroutine.R
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState

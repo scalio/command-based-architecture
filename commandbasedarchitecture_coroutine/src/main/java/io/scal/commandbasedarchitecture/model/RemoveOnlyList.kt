@@ -1,4 +1,4 @@
-package io.scal.commandbasedarchitecture
+package io.scal.commandbasedarchitecture.model
 
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
