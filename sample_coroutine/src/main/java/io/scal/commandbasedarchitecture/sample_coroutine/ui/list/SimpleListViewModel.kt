@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import io.scal.commandbasedarchitecture.CommandManager
 import io.scal.commandbasedarchitecture.CommandManagerImpl
+import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.pagination.LoadNextWithPageNumberCommand
-import io.scal.commandbasedarchitecture.pagination.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.pagination.RefreshCommand
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem

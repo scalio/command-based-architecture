@@ -1,4 +1,4 @@
-package io.scal.commandbasedarchitecture.pagination
+package io.scal.commandbasedarchitecture.model
 
 /**
  * Model class that store: pageData, refresh state and next page loading state
@@ -17,7 +17,10 @@ data class PaginationState<
  * Combines page data items with next page loading state item. Useful for RecyclerView adapters.
  */
 val <UIBaseItem, UIDataItem : UIBaseItem, Data : PageData<UIDataItem>> PaginationState<UIBaseItem, UIDataItem, Data>.dataAndNextPageLoadingStatus: List<UIBaseItem>?
-    get() = combineUIItemAndNextPage(pageData?.itemsList, nextPageLoadingStatus)
+    get() = combineUIItemAndNextPage(
+        pageData?.itemsList,
+        nextPageLoadingStatus
+    )
 
 /**
  * Combines page data items with next page loading state item. Useful for RecyclerView adapters.

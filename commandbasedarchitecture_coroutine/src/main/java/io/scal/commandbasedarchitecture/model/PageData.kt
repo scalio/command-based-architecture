@@ -1,4 +1,4 @@
-package io.scal.commandbasedarchitecture.pagination
+package io.scal.commandbasedarchitecture.model
 
 /**
  * Base class for storing pagination result (lists)
@@ -29,7 +29,10 @@ open class PageDataWithNextPageNumber<UIItem>(
 ) : PageData<UIItem>(data) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithNextPageNumber<UIItem> =
-        PageDataWithNextPageNumber(newItems, nextPageNumber)
+        PageDataWithNextPageNumber(
+            newItems,
+            nextPageNumber
+        )
 
     override fun <Data : PageData<UIItem>> plusNextPage(result: Data): PageData<UIItem> =
         PageDataWithNextPageNumber(
@@ -48,7 +51,10 @@ open class PageDataWithLatestItem<UIItem>(
 ) : PageData<UIItem>(data) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithLatestItem<UIItem> =
-        PageDataWithLatestItem(newItems, latestItem)
+        PageDataWithLatestItem(
+            newItems,
+            latestItem
+        )
 
     @Suppress("UNCHECKED_CAST")
     override fun <Data : PageData<UIItem>> plusNextPage(result: Data): PageData<UIItem> =
