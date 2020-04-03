@@ -14,7 +14,7 @@ open class RefreshStrategy : SingleWithTagStrategy("RefreshStrategy")
 /**
  * Base class for Loading Next actions.
  * This is a single strategy with tag that means it blocks every other action if this command is running
- * and no more then one loading next action can be added to a queue.
+ * and no more than one loading next action can be added to a queue.
  * In addition, this strategy drops any loading next page if refresh action is waiting or executing.
  */
 open class LoadNextStrategy : SingleWithTagStrategy("LoadNext") {
