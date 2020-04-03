@@ -38,7 +38,7 @@ Please replace `version` with the latest version: [![Download](https://api.bintr
 
 ## How to use
 
-Please find the full description in [Medium post TODO](https://medium.com).
+Please find the full description in [the post](https://scal.io/blog/command-based-architecture).
 
 Basic Setup:
 1. Create an instance of CommandManager: `val commandManager: CommandManager<ScreenState> by lazy { CommandManagerImpl(mutableScreenState, viewModelScope) }`
