@@ -1,9 +1,16 @@
-Android Command Based Architecture for processing concurrent tasks (commands) on single or multiple data sources
-======================
+![Command Based Architecture](https://raw.githubusercontent.com/scalio/command-based-architecture/master/scalio-cba.svg?sanitize=true)
+
+<h1 align="center">Command Based Architecture for Android</h1>
+
+<p align="center">
+  Process concurrent tasks on data sources
+</p>
+
+&nbsp;
 
 ## Features
 
-This library supports the execution and synchronization of different tasks on multiple threads.
+This is an Android Command Based Architecture for processing concurrent tasks (commands) on single or multiple data sources. This library supports the execution and synchronization of different tasks on multiple threads.
 
 Key features in flow control:
 1. Ability to control if a task should be executed or skipped based on current data (screen) state.
