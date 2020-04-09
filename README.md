@@ -89,3 +89,13 @@ Feel free to reach out to me.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+    
+## About us
+
+<p align="center">
+    <br/>
+    <a href="https://scal.io/">
+        <img src="https://raw.githubusercontent.com/scalio/bazel-status/master/assets/scalio-logo.svg?sanitize=true" />
+    </a>
+    <br/>
+</p>
