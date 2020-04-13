@@ -1,6 +1,7 @@
 package io.scal.commandbasedarchitecture.sample_coroutine.ui.list
 
 import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,7 +24,7 @@ class SimpleListViewModel(application: Application) : ListViewModel(application)
     )
     override val screenState: LiveData<ListScreenState> = mutableScreenState
     override val commandManager: CommandManager<ListScreenState> by lazy {
-        CommandManagerImpl(mutableScreenState, viewModelScope)
+        CommandManagerImpl(mutableScreenState, viewModelScope) { Log.w("SimpleViewModel", it) }
     }
 
     init {

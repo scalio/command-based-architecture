@@ -83,6 +83,10 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
             pendingActionCommands,
             runningActionCommands
         )
+
+    override fun toString(): String {
+        return "DataConvertCommand. InnerCommand: $innerCommand"
+    }
 }
 
 /**
@@ -98,4 +102,9 @@ open class DataConvertCommandSameResult<Result, OuterData : Any?, InnerData : An
     outerToInnerData,
     { this },
     { this }
-)
+) {
+
+    override fun toString(): String {
+        return "DataConvertCommandSameResult. InnerCommand: $innerCommand"
+    }
+}
