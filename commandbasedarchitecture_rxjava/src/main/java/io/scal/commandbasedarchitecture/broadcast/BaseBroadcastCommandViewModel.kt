@@ -33,7 +33,8 @@ data class DataState<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
  * ViewModel that will store all child view models and return already existing one with the same key.
  */
 abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
-    private val mainThreadScheduler: Scheduler
+    private val mainThreadScheduler: Scheduler,
+    private val loggerCallback: ((message: String) -> Unit)? = null
 ){
 
     private val mutableDataState =
@@ -47,7 +48,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
     protected val compositeDisposable = CompositeDisposable()
 
     protected open fun createCommandManager(mutableDataState: MutableLiveData<DataState<ChildKey, ChildModel>>): CommandManager<DataState<ChildKey, ChildModel>> =
-        CommandManagerImpl(mutableDataState, mainThreadScheduler, compositeDisposable)
+        CommandManagerImpl(mutableDataState, mainThreadScheduler, compositeDisposable, loggerCallback)
 
     /**
      * Will get existing view model with the same key or create a new one

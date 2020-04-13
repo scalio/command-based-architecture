@@ -25,7 +25,7 @@ group = "io.scal"
 final def siteUrl = 'https://github.com/scalio/command-based-architecture'
 final def gitUrl = "https://github.com/scalio/command-based-architecture.git"
 // This is the library version used when deploying the artifact
-version = "0.0.7"
+version = "0.0.8"
 
 final Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
