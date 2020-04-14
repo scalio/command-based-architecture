@@ -1,7 +1,6 @@
 package io.scal.commandbasedarchitecture
 
 import io.reactivex.Single
-import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
 /**
  * Command that is useful for reuse of existing commands but with different one to one data structures.
@@ -84,6 +83,10 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
             pendingActionCommands,
             runningActionCommands
         )
+
+    override fun toString(): String {
+        return "DataConvertCommand. InnerCommand: $innerCommand"
+    }
 }
 
 /**
@@ -99,4 +102,9 @@ open class DataConvertCommandSameResult<Result, OuterData : Any?, InnerData : An
     outerToInnerData,
     { this },
     { this }
-)
+) {
+
+    override fun toString(): String {
+        return "DataConvertCommandSameResult. InnerCommand: $innerCommand"
+    }
+}

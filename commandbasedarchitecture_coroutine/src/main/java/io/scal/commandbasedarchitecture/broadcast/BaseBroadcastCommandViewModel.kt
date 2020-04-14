@@ -1,5 +1,6 @@
 package io.scal.commandbasedarchitecture.broadcast
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.scal.commandbasedarchitecture.ActionCommand
@@ -32,7 +33,9 @@ data class DataState<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
 /**
  * ViewModel that will store all child view models and return already existing one with the same key.
  */
-abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewModel<ChildKey>> {
+abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
+    private val loggerCallback: ((message: String) -> Unit)? = null
+) {
 
     private val mutableDataState =
         MutableLiveData<DataState<ChildKey, ChildModel>>(DataState(emptyMap(), emptyList()))
@@ -45,7 +48,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
     protected val viewModelScope = CoroutineScope(Dispatchers.Main)
 
     protected open fun createCommandManager(mutableDataState: MutableLiveData<DataState<ChildKey, ChildModel>>): CommandManager<DataState<ChildKey, ChildModel>> =
-        CommandManagerImpl(mutableDataState, viewModelScope)
+        CommandManagerImpl(mutableDataState, viewModelScope, loggerCallback)
 
     /**
      * Will get existing view model with the same key or create a new one

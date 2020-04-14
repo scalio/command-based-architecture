@@ -1,6 +1,7 @@
 package io.scal.commandbasedarchitecture.sample_coroutine.ui.details
 
 import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,7 +24,7 @@ class SimpleDetailsViewModel(application: Application) : DetailsViewModel(applic
     override val screenState: LiveData<DetailsScreenState> = mutableScreenState
 
     private val commandManager: CommandManager<DetailsScreenState> by lazy {
-        CommandManagerImpl(mutableScreenState, viewModelScope)
+        CommandManagerImpl(mutableScreenState, viewModelScope) { Log.w("SimpleViewModel", it) }
     }
 
 
