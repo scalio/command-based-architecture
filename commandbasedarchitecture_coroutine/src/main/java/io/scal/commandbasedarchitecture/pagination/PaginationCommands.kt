@@ -128,8 +128,12 @@ open class LoadNextWithPageNumberCommand<
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        null != dataState.pageData?.nextPageNumber &&
-                super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        if (null == dataState.pageData?.nextPageNumber) {
+            pendingActionCommands.remove(this)
+            false
+        } else {
+            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        }
 }
 
 /**
@@ -175,6 +179,10 @@ open class LoadNextWithLatestItemCommand<
         pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        null != dataState.pageData?.latestItem &&
-                super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        if (null == dataState.pageData?.latestItem) {
+            pendingActionCommands.remove(this)
+            false
+        } else {
+            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        }
 }
