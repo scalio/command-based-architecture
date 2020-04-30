@@ -37,9 +37,8 @@ fun <UIBaseItem, UIDataItem : UIBaseItem, Data : PageData<UIDataItem>> applyNewD
 }
 
 fun Any?.writeToParcel(parcel: Parcel) {
-    parcel.writeByte(if (null == this) 0 else 1)
-    if (null != this) parcel.writeValue(this)
+    parcel.writeValue(this)
 }
 
 fun Parcel.readNullOrValue(): Any? =
-    if (0.toByte() == readByte()) null else readValue(CommandManager::class.java.classLoader)
+    readValue(CommandManager::class.java.classLoader)
