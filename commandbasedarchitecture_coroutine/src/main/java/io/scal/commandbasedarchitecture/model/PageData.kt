@@ -1,11 +1,16 @@
 package io.scal.commandbasedarchitecture.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
+
 /**
  * Base class for storing pagination result (lists)
  */
+@Parcelize
 open class PageData<UIItem>(
-    open val itemsList: List<UIItem>
-) {
+    open val itemsList: @RawValue List<UIItem>
+) : Parcelable {
     /**
      * Should return the same class and same data but with updated items
      */
@@ -23,10 +28,11 @@ open class PageData<UIItem>(
  * Usual simple pagination realization that is based on page number and page size.
  * This class will store this information.
  */
+@Parcelize
 open class PageDataWithNextPageNumber<UIItem>(
-    data: List<UIItem>,
+    override val itemsList: @RawValue List<UIItem>,
     val nextPageNumber: Int?
-) : PageData<UIItem>(data) {
+) : PageData<UIItem>(itemsList) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithNextPageNumber<UIItem> =
         PageDataWithNextPageNumber(
@@ -45,10 +51,11 @@ open class PageDataWithNextPageNumber<UIItem>(
  * Simple pagination realization that is based on latest loaded item (usually its id or date).
  * This class will store this information.
  */
+@Parcelize
 open class PageDataWithLatestItem<UIItem>(
-    data: List<UIItem>,
-    val latestItem: UIItem?
-) : PageData<UIItem>(data) {
+    override val itemsList: @RawValue List<UIItem>,
+    val latestItem: @RawValue UIItem?
+) : PageData<UIItem>(itemsList) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithLatestItem<UIItem> =
         PageDataWithLatestItem(
