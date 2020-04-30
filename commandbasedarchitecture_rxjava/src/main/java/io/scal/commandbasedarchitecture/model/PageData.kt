@@ -31,7 +31,7 @@ open class PageData<UIItem>(
 @Parcelize
 open class PageDataWithNextPageNumber<UIItem>(
     override val itemsList: @RawValue List<UIItem>,
-    val nextPageNumber: Int?
+    open val nextPageNumber: Int?
 ) : PageData<UIItem>(itemsList) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithNextPageNumber<UIItem> =
@@ -54,7 +54,7 @@ open class PageDataWithNextPageNumber<UIItem>(
 @Parcelize
 open class PageDataWithLatestItem<UIItem>(
     override val itemsList: @RawValue List<UIItem>,
-    val latestItem: @RawValue UIItem?
+    open val latestItem: @RawValue UIItem?
 ) : PageData<UIItem>(itemsList) {
 
     override fun mapItems(newItems: List<UIItem>): PageDataWithLatestItem<UIItem> =
