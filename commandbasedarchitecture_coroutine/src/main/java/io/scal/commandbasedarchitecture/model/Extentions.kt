@@ -1,5 +1,8 @@
 package io.scal.commandbasedarchitecture.model
 
+import android.os.Parcel
+import io.scal.commandbasedarchitecture.CommandManager
+
 
 fun <UIBaseItem, UIDataItem : UIBaseItem, Data : PageData<UIDataItem>> applyNewDataToOtherState(
     stateToUpdate: PaginationState<UIBaseItem, UIDataItem, Data>,
@@ -32,3 +35,11 @@ fun <UIBaseItem, UIDataItem : UIBaseItem, Data : PageData<UIDataItem>> applyNewD
         }
     }
 }
+
+fun Any?.writeToParcel(parcel: Parcel) {
+    parcel.writeByte(if (null == this) 0 else 1)
+    if (null != this) parcel.writeValue(this)
+}
+
+fun Parcel.readNullOrValue(): Any? =
+    if (0.toByte() == readByte()) null else readValue(CommandManager::class.java.classLoader)

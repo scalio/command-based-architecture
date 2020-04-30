@@ -1,6 +1,8 @@
 package io.scal.commandbasedarchitecture.model
 
+import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.android.parcel.Parceler
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 
@@ -16,7 +18,26 @@ data class PaginationState<
     val pageData: Data? = null,
     val refreshStatus: @RawValue UIBaseItem? = null,
     val nextPageLoadingStatus: @RawValue UIBaseItem? = null
-) : Parcelable
+) : Parcelable {
+
+    companion object : Parceler<PaginationState<Any?, Any?, PageData<Any?>>> {
+
+        override fun PaginationState<Any?, Any?, PageData<Any?>>.write(parcel: Parcel, flags: Int) {
+            pageData.writeToParcel(parcel)
+            refreshStatus.writeToParcel(parcel)
+            nextPageLoadingStatus.writeToParcel(parcel)
+        }
+
+        override fun create(parcel: Parcel): PaginationState<Any?, Any?, PageData<Any?>> {
+            @Suppress("UNCHECKED_CAST")
+            return PaginationState(
+                parcel.readNullOrValue() as? PageData<Any?>,
+                parcel.readNullOrValue(),
+                parcel.readNullOrValue()
+            )
+        }
+    }
+}
 
 /**
  * Combines page data items with next page loading state item. Useful for RecyclerView adapters.

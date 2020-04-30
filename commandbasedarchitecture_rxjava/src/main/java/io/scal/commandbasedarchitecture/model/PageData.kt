@@ -1,6 +1,8 @@
 package io.scal.commandbasedarchitecture.model
 
+import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.android.parcel.Parceler
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 
@@ -22,6 +24,22 @@ open class PageData<UIItem>(
      */
     open fun <Data : PageData<UIItem>> plusNextPage(result: Data): PageData<UIItem> =
         PageData(itemsList.plus(result.itemsList))
+
+    companion object : Parceler<PageData<Any?>> {
+
+        override fun PageData<Any?>.write(parcel: Parcel, flags: Int) {
+            parcel.writeInt(itemsList.size)
+            itemsList.forEach { it.writeToParcel(parcel) }
+        }
+
+        override fun create(parcel: Parcel): PageData<Any?> {
+            val list = mutableListOf<Any?>()
+            val count = parcel.readInt()
+            repeat(count) { list.add(parcel.readNullOrValue()) }
+
+            return PageData(list)
+        }
+    }
 }
 
 /**
@@ -45,6 +63,26 @@ open class PageDataWithNextPageNumber<UIItem>(
             itemsList.plus(result.itemsList),
             (result as PageDataWithNextPageNumber<*>).nextPageNumber
         )
+
+    companion object : Parceler<PageDataWithNextPageNumber<Any?>> {
+
+        override fun PageDataWithNextPageNumber<Any?>.write(parcel: Parcel, flags: Int) {
+            parcel.writeInt(itemsList.size)
+            itemsList.forEach { parcel.writeValue(it) }
+            nextPageNumber.writeToParcel(parcel)
+        }
+
+        override fun create(parcel: Parcel): PageDataWithNextPageNumber<Any?> {
+            val list = mutableListOf<Any?>()
+            val count = parcel.readInt()
+            repeat(count) { list.add(parcel.readNullOrValue()) }
+
+            return PageDataWithNextPageNumber(
+                list,
+                parcel.readNullOrValue() as? Int
+            )
+        }
+    }
 }
 
 /**
@@ -69,4 +107,24 @@ open class PageDataWithLatestItem<UIItem>(
             itemsList.plus(result.itemsList),
             (result as PageDataWithLatestItem<*>).latestItem as? UIItem
         )
+
+    companion object : Parceler<PageDataWithLatestItem<Any?>> {
+
+        override fun PageDataWithLatestItem<Any?>.write(parcel: Parcel, flags: Int) {
+            parcel.writeInt(itemsList.size)
+            itemsList.forEach { parcel.writeValue(it) }
+            latestItem.writeToParcel(parcel)
+        }
+
+        override fun create(parcel: Parcel): PageDataWithLatestItem<Any?> {
+            val list = mutableListOf<Any?>()
+            val count = parcel.readInt()
+            repeat(count) { list.add(parcel.readNullOrValue()) }
+
+            return PageDataWithLatestItem(
+                list,
+                parcel.readNullOrValue()
+            )
+        }
+    }
 }
