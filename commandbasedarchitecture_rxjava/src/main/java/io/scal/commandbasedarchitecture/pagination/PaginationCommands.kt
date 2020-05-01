@@ -2,6 +2,10 @@ package io.scal.commandbasedarchitecture.pagination
 
 import io.reactivex.Single
 import io.scal.commandbasedarchitecture.*
+import io.scal.commandbasedarchitecture.model.PageData
+import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
+import io.scal.commandbasedarchitecture.model.PaginationState
+import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
 /**
  * Command that will execute refresh data action with showing refresh progress and SingleTag strategy.
@@ -12,33 +16,35 @@ open class RefreshCommand<
         UIDataItem : UIBaseItem,
         UIProgressItem : UIBaseItem,
         UIErrorItem : UIBaseItem,
-        Data : io.scal.commandbasedarchitecture.model.PageData<UIDataItem>>
+        Data : PageData<UIDataItem>>
     (
-    private val refreshAction: (io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>) -> Single<Data>,
+    private val refreshAction: (PaginationState<UIBaseItem, UIDataItem, Data>) -> Single<Data>,
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = RefreshStrategy()
-) : ActionCommandWithStrategy<Data, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
+) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(
+    strategy
+) {
 
-    override fun onCommandWasAdded(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(refreshStatus = progressUiItem())
 
-    override fun onExecuteStarting(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    override fun onExecuteStarting(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(refreshStatus = progressUiItem())
 
-    override fun executeCommand(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): Single<Data> =
+    override fun executeCommand(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): Single<Data> =
         refreshAction(dataState)
 
     override fun onExecuteSuccess(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
         result: Data
-    ): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
-        io.scal.commandbasedarchitecture.model.PaginationState(pageData = result)
+    ): PaginationState<UIBaseItem, UIDataItem, Data> =
+        PaginationState(pageData = result)
 
     override fun onExecuteFail(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
         error: Throwable
-    ): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    ): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(refreshStatus = errorToUIItem(error))
 }
 
@@ -53,35 +59,37 @@ open class LoadNextCommand<
         UIErrorItem : UIBaseItem,
         Data : io.scal.commandbasedarchitecture.model.PageData<UIDataItem>>
     (
-    private val loadNextAction: (io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>) -> Single<Data>,
+    private val loadNextAction: (PaginationState<UIBaseItem, UIDataItem, Data>) -> Single<Data>,
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = LoadNextStrategy()
-) : ActionCommandWithStrategy<Data, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
+) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(
+    strategy
+) {
 
-    override fun onCommandWasAdded(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(nextPageLoadingStatus = progressUiItem())
 
-    override fun onExecuteStarting(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    override fun onExecuteStarting(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(nextPageLoadingStatus = progressUiItem())
 
-    override fun executeCommand(dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>): Single<Data> =
+    override fun executeCommand(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): Single<Data> =
         loadNextAction(dataState)
 
     @Suppress("UNCHECKED_CAST")
     override fun onExecuteSuccess(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
         result: Data
-    ): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    ): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(
             pageData = (dataState.pageData?.plusNextPage(result) as? Data) ?: result,
             nextPageLoadingStatus = null
         )
 
     override fun onExecuteFail(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
         error: Throwable
-    ): io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data> =
+    ): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(nextPageLoadingStatus = errorToUIItem(error))
 }
 
@@ -94,13 +102,13 @@ open class LoadNextWithPageNumberCommand<
         UIDataItem : UIBaseItem,
         UIProgressItem : UIBaseItem,
         UIErrorItem : UIBaseItem,
-        Data : io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber<UIDataItem>>
+        Data : PageDataWithNextPageNumber<UIDataItem>>
     (
     private val loadNextAction: (nextPageNumber: Int) -> Single<Data>,
     progressUiItem: () -> UIProgressItem,
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = LoadNextStrategy()
-) : DataConvertCommandSameResult<Data, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>>(
+) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
     LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
         { loadNextAction(it.pageData!!.nextPageNumber!!) },
         progressUiItem,
@@ -112,8 +120,8 @@ open class LoadNextWithPageNumberCommand<
 ) {
 
     override fun shouldAddToPendingActions(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         null != dataState.pageData?.nextPageNumber &&
@@ -124,12 +132,16 @@ open class LoadNextWithPageNumberCommand<
                 )
 
     override fun shouldExecuteAction(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        null != dataState.pageData?.nextPageNumber &&
-                super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        if (null == dataState.pageData?.nextPageNumber) {
+            pendingActionCommands.remove(this)
+            false
+        } else {
+            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        }
 }
 
 /**
@@ -147,7 +159,7 @@ open class LoadNextWithLatestItemCommand<
     progressUiItem: () -> UIProgressItem,
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: SingleStrategy = LoadNextStrategy()
-) : DataConvertCommandSameResult<Data, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>, io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>>(
+) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
     LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
         { loadNextAction(it.pageData!!.latestItem!!) },
         progressUiItem,
@@ -159,8 +171,8 @@ open class LoadNextWithLatestItemCommand<
 ) {
 
     override fun shouldAddToPendingActions(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
         null != dataState.pageData?.latestItem &&
@@ -171,10 +183,14 @@ open class LoadNextWithLatestItemCommand<
                 )
 
     override fun shouldExecuteAction(
-        dataState: io.scal.commandbasedarchitecture.model.PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: io.scal.commandbasedarchitecture.model.RemoveOnlyList<ActionCommand<*, *>>,
+        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
+        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
         runningActionCommands: List<ActionCommand<*, *>>
     ): Boolean =
-        null != dataState.pageData?.latestItem &&
-                super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        if (null == dataState.pageData?.latestItem) {
+            pendingActionCommands.remove(this)
+            false
+        } else {
+            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
+        }
 }
