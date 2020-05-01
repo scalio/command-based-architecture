@@ -2,7 +2,7 @@ package io.scal.commandbasedarchitecture.sample_coroutine.ui.viewmodel
 
 import android.content.Context
 import android.widget.Toast
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import io.scal.commandbasedarchitecture.CommandManager
 import io.scal.commandbasedarchitecture.broadcast.ChildViewModel
 import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
@@ -17,11 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ItemsChildBroadcastViewModel(
-    override val key: ItemsBroadcastTypes,
-    val childLiveData: LiveData<ListScreenState>,
+    private val key: ItemsBroadcastTypes,
+    override val fullDataState: MutableLiveData<ListScreenState>,
     val commandManager: CommandManager<ListScreenState>,
     private val context: Context
-) : ChildViewModel<ItemsBroadcastTypes> {
+) : ChildViewModel<ListScreenState> {
 
     fun reload() {
         commandManager.postCommand(

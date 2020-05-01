@@ -15,7 +15,7 @@ class BroadcastListViewModel(application: Application) : ListViewModel(applicati
         rootBroadcastViewModel.getChildViewModel(ItemsBroadcastTypes.AllItems)
     }
 
-    override val screenState: LiveData<ListScreenState> = childViewModel.childLiveData
+    override val screenState: LiveData<ListScreenState> = childViewModel.fullDataState
     override val commandManager: CommandManager<ListScreenState> = childViewModel.commandManager
 
     init {

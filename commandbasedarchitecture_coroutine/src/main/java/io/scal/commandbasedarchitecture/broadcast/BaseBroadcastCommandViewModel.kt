@@ -1,53 +1,94 @@
 package io.scal.commandbasedarchitecture.broadcast
 
-import android.util.Log
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.scal.commandbasedarchitecture.ActionCommand
 import io.scal.commandbasedarchitecture.CommandManager
 import io.scal.commandbasedarchitecture.CommandManagerImpl
 import io.scal.commandbasedarchitecture.DataConvertCommandSameResult
+import io.scal.commandbasedarchitecture.model.readNullOrValue
+import io.scal.commandbasedarchitecture.model.writeToParcel
+import kotlinx.android.parcel.Parceler
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
 
-interface ChildViewModel<ChildKey> {
-    val key: ChildKey
+interface ChildViewModel<ChildState> {
+    val fullDataState: MutableLiveData<ChildState>
 }
 
 /**
  * Broadcast data state class
  *
- * @param hardViewModels view models that should be kept permanently after the first request
- * @param weakViewModels view models that will be kept until cleared by gc
+ * @param hardViewStates view models that should be kept permanently after the first request
+ * @param weakViewStates view models that will be kept until cleared by gc
  */
-data class DataState<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
-    val hardViewModels: Map<ChildKey, ChildModel>,
-    val weakViewModels: List<WeakReference<ChildModel>>
-) {
+@Parcelize
+data class DataState<ChildKey, ChildState>(
+    val hardViewStates: Map<ChildKey, MutableLiveData<ChildState>>,
+    val weakViewStates: Map<ChildKey, WeakReference<MutableLiveData<ChildState>>>
+) : Parcelable {
 
-    val allActiveViewModels: List<ChildModel>
-        get() = hardViewModels.values.plus(weakViewModels.mapNotNull { it.get() })
+    val allActiveChildStatesAsMap: Map<ChildKey, MutableLiveData<ChildState>>
+        get() = hardViewStates
+            .plus(weakViewStates
+                .mapValues { it.value.get() }
+                .filterValues { null != it }
+                .mapValues { it.value!! }
+            )
+
+    val allActiveChildStatesAsList: List<MutableLiveData<ChildState>>
+        get() = hardViewStates.values.plus(weakViewStates.mapNotNull { it.value.get() })
+
+    companion object : Parceler<DataState<Any?, Any?>> {
+
+        override fun DataState<Any?, Any?>.write(parcel: Parcel, flags: Int) {
+            val allStates = allActiveChildStatesAsMap
+
+            parcel.writeInt(allStates.size)
+            allStates.forEach {
+                it.key.writeToParcel(parcel)
+                it.value.writeToParcel(parcel)
+            }
+        }
+
+        override fun create(parcel: Parcel): DataState<Any?, Any?> {
+            val hardModelsMap = mutableMapOf<Any?, MutableLiveData<Any?>>()
+            val count = parcel.readInt()
+            repeat(count) {
+                val key = parcel.readNullOrValue()
+                val value = parcel.readNullOrValue()
+                if (null != value) {
+                    hardModelsMap[key] = MutableLiveData(value)
+                }
+            }
+
+            return DataState(hardModelsMap, emptyMap())
+        }
+    }
 }
 
 /**
  * ViewModel that will store all child view models and return already existing one with the same key.
  */
-abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewModel<ChildKey>>(
+abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : ChildViewModel<ChildState>>(
     private val loggerCallback: ((message: String) -> Unit)? = null
 ) {
 
-    private val mutableDataState =
-        MutableLiveData<DataState<ChildKey, ChildModel>>(DataState(emptyMap(), emptyList()))
+    protected open val mutableDataState =
+        MutableLiveData<DataState<ChildKey, ChildState>>(DataState(emptyMap(), emptyMap()))
 
-    protected val commandManager: CommandManager<DataState<ChildKey, ChildModel>> by lazy {
+    protected val commandManager: CommandManager<DataState<ChildKey, ChildState>> by lazy {
         createCommandManager(
             mutableDataState
         )
     }
-    protected val viewModelScope = CoroutineScope(Dispatchers.Main)
+    protected open val viewModelScope = CoroutineScope(Dispatchers.Main)
 
-    protected open fun createCommandManager(mutableDataState: MutableLiveData<DataState<ChildKey, ChildModel>>): CommandManager<DataState<ChildKey, ChildModel>> =
+    protected open fun createCommandManager(mutableDataState: MutableLiveData<DataState<ChildKey, ChildState>>): CommandManager<DataState<ChildKey, ChildState>> =
         CommandManagerImpl(mutableDataState, viewModelScope, loggerCallback)
 
     /**
@@ -59,28 +100,21 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
      */
     protected fun getChildViewModel(childKey: ChildKey, hardViewModel: Boolean): ChildModel {
         val currentDataState = mutableDataState.value!!
-        val cachedViewModel = findChildViewModel(childKey, currentDataState)
-        if (null != cachedViewModel) {
-            return cachedViewModel
-        }
+        val cachedChildState = findChildState(childKey, currentDataState)
 
-        val newViewModel = createChildViewModel(childKey)
+        val newViewModel = createChildViewModel(childKey, cachedChildState)
 
         val newDataState =
             if (hardViewModel)
                 currentDataState.copy(
-                    hardViewModels = currentDataState.hardViewModels.plus(
-                        Pair(
-                            childKey,
-                            newViewModel
-                        )
-                    )
+                    hardViewStates = currentDataState.hardViewStates
+                        .plus(Pair(childKey, newViewModel.fullDataState))
                 )
             else
                 currentDataState.copy(
-                    weakViewModels = currentDataState.weakViewModels.plus(WeakReference(newViewModel))
+                    weakViewStates = currentDataState.weakViewStates
+                        .plus(Pair(childKey, WeakReference(newViewModel.fullDataState)))
                 )
-
         mutableDataState.value = newDataState
 
         return newViewModel
@@ -89,22 +123,25 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildModel : ChildViewMod
     /**
      * Should construct new ChildView model for provided key
      */
-    protected abstract fun createChildViewModel(childKey: ChildKey): ChildModel
-
-    private fun findChildViewModel(
+    protected abstract fun createChildViewModel(
         childKey: ChildKey,
-        currentDataState: DataState<ChildKey, ChildModel>
-    ): ChildModel? =
-        currentDataState.allActiveViewModels.firstOrNull { it.key == childKey }
+        cachedChildState: MutableLiveData<ChildState>?
+    ): ChildModel
+
+    private fun findChildState(
+        childKey: ChildKey,
+        currentDataState: DataState<ChildKey, ChildState>
+    ): MutableLiveData<ChildState>? =
+        currentDataState.allActiveChildStatesAsMap[childKey]
 }
 
 /**
  * CommandManager that will broadcast all new state for all existing view models.
  * It is up to you how you will update each view model and their state.
  */
-abstract class ChildCommandManager<ChildState, ChildKey, ChildModel : ChildViewModel<ChildKey>>(
+abstract class ChildCommandManager<ChildKey, ChildState>(
     protected val key: ChildKey,
-    private val commandManager: CommandManager<DataState<ChildKey, ChildModel>>,
+    private val commandManager: CommandManager<DataState<ChildKey, ChildState>>,
     private val feedTypedLiveData: LiveData<ChildState>
 ) : CommandManager<ChildState> {
 
@@ -112,7 +149,7 @@ abstract class ChildCommandManager<ChildState, ChildKey, ChildModel : ChildViewM
         commandManager.postCommand(
             DataConvertCommandSameResult(
                 actionCommand,
-                { outerData: DataState<ChildKey, ChildModel>, newInnerData: ChildState ->
+                { outerData: DataState<ChildKey, ChildState>, newInnerData: ChildState ->
                     applyNewDataToAllStates(outerData, newInnerData)
                 },
                 { feedTypedLiveData.value!! }
@@ -124,17 +161,23 @@ abstract class ChildCommandManager<ChildState, ChildKey, ChildModel : ChildViewM
      * Called each time child view model state is updated to publish its state for all view models
      */
     protected open fun applyNewDataToAllStates(
-        usersRootState: DataState<ChildKey, ChildModel>,
+        usersRootState: DataState<ChildKey, ChildState>,
         newUsersTypedState: ChildState
-    ): DataState<ChildKey, ChildModel> {
-        usersRootState.allActiveViewModels.forEach { updateViewModel(it, newUsersTypedState) }
+    ): DataState<ChildKey, ChildState> {
+        usersRootState.allActiveChildStatesAsMap.forEach {
+            updateState(it.key, it.value, newUsersTypedState)
+        }
         return usersRootState
     }
 
     /**
      * Method for updating view model based on the new state. Not that this state may not be from this view model.
      */
-    protected abstract fun updateViewModel(childViewModel: ChildModel, newState: ChildState)
+    protected abstract fun updateState(
+        stateToUpdateKey: ChildKey,
+        stateToUpdateLiveData: MutableLiveData<ChildState>,
+        newState: ChildState
+    )
 
     override fun clearPendingCommands(clearRule: (ActionCommand<*, ChildState>) -> Boolean) {
         throw IllegalStateException("not supported here")

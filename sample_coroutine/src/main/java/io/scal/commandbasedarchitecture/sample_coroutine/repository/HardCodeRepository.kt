@@ -14,7 +14,7 @@ object HardCodeRepository {
         delay(
             TimeUnit.MILLISECONDS
                 .convert(
-                    random.nextInt(9).toLong() + 10,
+                    random.nextInt(9).toLong(),
                     TimeUnit.SECONDS
                 )
         )
