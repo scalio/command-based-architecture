@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
 
 interface ChildViewModel<ChildState> {
-    val fullDataState: MutableLiveData<ChildState>
+    val fullDataState: LiveData<ChildState>
 }
 
 /**
@@ -108,12 +108,22 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
             if (hardViewModel)
                 currentDataState.copy(
                     hardViewStates = currentDataState.hardViewStates
-                        .plus(Pair(childKey, newViewModel.fullDataState))
+                        .plus(
+                            Pair(
+                                childKey,
+                                newViewModel.fullDataState as MutableLiveData<ChildState>
+                            )
+                        )
                 )
             else
                 currentDataState.copy(
                     weakViewStates = currentDataState.weakViewStates
-                        .plus(Pair(childKey, WeakReference(newViewModel.fullDataState)))
+                        .plus(
+                            Pair(
+                                childKey,
+                                WeakReference(newViewModel.fullDataState as MutableLiveData<ChildState>)
+                            )
+                        )
                 )
         mutableDataState.value = newDataState
 
