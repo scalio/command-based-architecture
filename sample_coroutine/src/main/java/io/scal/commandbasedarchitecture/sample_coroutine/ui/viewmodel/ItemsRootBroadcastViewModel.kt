@@ -12,14 +12,16 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState
 
 class ItemsRootBroadcastViewModel(
     private val application: Application
-) :
-    BaseBroadcastCommandViewModel<ItemsBroadcastTypes, ItemsChildBroadcastViewModel>() {
+) : BaseBroadcastCommandViewModel<ItemsBroadcastTypes, ListScreenState, ItemsChildBroadcastViewModel>() {
 
     fun getChildViewModel(itemsBroadcastTypes: ItemsBroadcastTypes): ItemsChildBroadcastViewModel =
         getChildViewModel(itemsBroadcastTypes, itemsBroadcastTypes is ItemsBroadcastTypes.AllItems)
 
-    override fun createChildViewModel(childKey: ItemsBroadcastTypes): ItemsChildBroadcastViewModel {
-        val childLiveData = MutableLiveData(ListScreenState())
+    override fun createChildViewModel(
+        childKey: ItemsBroadcastTypes,
+        cachedChildState: MutableLiveData<ListScreenState>?
+    ): ItemsChildBroadcastViewModel {
+        val childLiveData = cachedChildState ?: MutableLiveData(ListScreenState())
         return ItemsChildBroadcastViewModel(
             childKey,
             childLiveData,
@@ -41,25 +43,24 @@ class ItemsRootBroadcastViewModel(
 
 private class UsersChildCommandManager(
     key: ItemsBroadcastTypes,
-    commandManager: CommandManager<DataState<ItemsBroadcastTypes, ItemsChildBroadcastViewModel>>,
+    commandManager: CommandManager<DataState<ItemsBroadcastTypes, ListScreenState>>,
     childLiveData: LiveData<ListScreenState>
-) : ChildCommandManager<ListScreenState, ItemsBroadcastTypes, ItemsChildBroadcastViewModel>
-    (key, commandManager, childLiveData) {
+) : ChildCommandManager<ItemsBroadcastTypes, ListScreenState>(key, commandManager, childLiveData) {
 
-    override fun updateViewModel(
-        childViewModel: ItemsChildBroadcastViewModel,
+    override fun updateState(
+        stateToUpdateKey: ItemsBroadcastTypes,
+        stateToUpdateLiveData: MutableLiveData<ListScreenState>,
         newState: ListScreenState
     ) {
-        childViewModel.childLiveData as MutableLiveData
-        val stateToUpdate = childViewModel.childLiveData.value!!
+        val stateToUpdate = stateToUpdateLiveData.value ?: return
         val updatedState =
             applyNewDataToOtherState(
                 stateToUpdate,
                 newState,
-                childViewModel.key == key
+                stateToUpdateKey == key
             ) { newItem, oldItem -> newItem.key == oldItem.key }
         if (stateToUpdate != updatedState) {
-            childViewModel.childLiveData.value = updatedState
+            stateToUpdateLiveData.value = updatedState
         }
     }
 }

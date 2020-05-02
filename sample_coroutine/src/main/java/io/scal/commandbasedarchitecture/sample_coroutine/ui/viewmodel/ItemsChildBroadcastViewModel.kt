@@ -17,11 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ItemsChildBroadcastViewModel(
-    override val key: ItemsBroadcastTypes,
-    val childLiveData: LiveData<ListScreenState>,
+    private val key: ItemsBroadcastTypes,
+    override val fullDataState: LiveData<ListScreenState>,
     val commandManager: CommandManager<ListScreenState>,
     private val context: Context
-) : ChildViewModel<ItemsBroadcastTypes> {
+) : ChildViewModel<ListScreenState> {
 
     fun reload() {
         commandManager.postCommand(
