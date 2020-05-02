@@ -23,17 +23,17 @@ interface ChildViewModel<ChildState> {
 /**
  * Broadcast data state class
  *
- * @param hardViewStates view models that should be kept permanently after the first request
+ * @param strongViewStates view models that should be kept permanently after the first request
  * @param weakViewStates view models that will be kept until cleared by gc
  */
 @Parcelize
 data class DataState<ChildKey, ChildState>(
-    val hardViewStates: Map<ChildKey, MutableLiveData<ChildState>>,
+    val strongViewStates: Map<ChildKey, MutableLiveData<ChildState>>,
     val weakViewStates: Map<ChildKey, WeakReference<MutableLiveData<ChildState>>>
 ) : Parcelable {
 
     val allActiveChildStatesAsMap: Map<ChildKey, MutableLiveData<ChildState>>
-        get() = hardViewStates
+        get() = strongViewStates
             .plus(weakViewStates
                 .mapValues { it.value.get() }
                 .filterValues { null != it }
@@ -41,7 +41,7 @@ data class DataState<ChildKey, ChildState>(
             )
 
     val allActiveChildStatesAsList: List<MutableLiveData<ChildState>>
-        get() = hardViewStates.values.plus(weakViewStates.mapNotNull { it.value.get() })
+        get() = strongViewStates.values.plus(weakViewStates.mapNotNull { it.value.get() })
 
     companion object : Parceler<DataState<Any?, Any?>> {
 
@@ -107,7 +107,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
         val newDataState =
             if (hardViewModel)
                 currentDataState.copy(
-                    hardViewStates = currentDataState.hardViewStates
+                    strongViewStates = currentDataState.strongViewStates
                         .plus(
                             Pair(
                                 childKey,
