@@ -49,9 +49,9 @@ data class DataState<ChildKey, ChildState>(
             val allStates = allActiveChildStatesAsMap
 
             parcel.writeInt(allStates.size)
-            allStates.forEach {
-                it.key.writeToParcel(parcel)
-                it.value.writeToParcel(parcel)
+            allStates.forEach { (childKey, liveData) ->
+                childKey.writeToParcel(parcel)
+                liveData.value.writeToParcel(parcel)
             }
         }
 
