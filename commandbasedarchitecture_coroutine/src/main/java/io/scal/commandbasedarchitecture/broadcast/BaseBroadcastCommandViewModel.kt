@@ -14,7 +14,7 @@ import kotlinx.android.parcel.Parceler
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import java.lang.ref.WeakReference
+import java.lang.ref.SoftReference
 
 interface ChildViewModel<ChildState> {
     val fullDataState: LiveData<ChildState>
@@ -29,7 +29,7 @@ interface ChildViewModel<ChildState> {
 @Parcelize
 data class DataState<ChildKey, ChildState>(
     val strongViewStates: Map<ChildKey, MutableLiveData<ChildState>>,
-    val weakViewStates: Map<ChildKey, WeakReference<MutableLiveData<ChildState>>>
+    val weakViewStates: Map<ChildKey, SoftReference<MutableLiveData<ChildState>>>
 ) : Parcelable {
 
     val allActiveChildStatesAsMap: Map<ChildKey, MutableLiveData<ChildState>>
@@ -81,7 +81,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
     protected open val mutableDataState =
         MutableLiveData<DataState<ChildKey, ChildState>>(DataState(emptyMap(), emptyMap()))
 
-    protected val commandManager: CommandManager<DataState<ChildKey, ChildState>> by lazy {
+    protected open val commandManager: CommandManager<DataState<ChildKey, ChildState>> by lazy {
         createCommandManager(
             mutableDataState
         )
@@ -121,7 +121,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
                         .plus(
                             Pair(
                                 childKey,
-                                WeakReference(newViewModel.fullDataState as MutableLiveData<ChildState>)
+                                SoftReference(newViewModel.fullDataState as MutableLiveData<ChildState>)
                             )
                         )
                 )
