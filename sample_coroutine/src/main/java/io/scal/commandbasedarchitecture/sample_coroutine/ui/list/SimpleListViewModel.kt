@@ -24,7 +24,12 @@ class SimpleListViewModel(application: Application) : ListViewModel(application)
     )
     override val screenState: LiveData<ListScreenState> = mutableScreenState
     override val commandManager: CommandManager<ListScreenState> by lazy {
-        CommandManagerImpl(mutableScreenState, viewModelScope) { Log.w("SimpleViewModel", it) }
+        CommandManagerImpl(
+            mutableScreenState,
+            viewModelScope,
+            { Log.w("SimpleViewModel", it) },
+            { message, error ->  Log.w("SimpleViewModel", message, error) }
+        )
     }
 
     init {

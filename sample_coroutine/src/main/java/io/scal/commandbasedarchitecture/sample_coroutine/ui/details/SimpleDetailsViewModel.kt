@@ -24,7 +24,12 @@ class SimpleDetailsViewModel(application: Application) : DetailsViewModel(applic
     override val screenState: LiveData<DetailsScreenState> = mutableScreenState
 
     private val commandManager: CommandManager<DetailsScreenState> by lazy {
-        CommandManagerImpl(mutableScreenState, viewModelScope) { Log.w("SimpleViewModel", it) }
+        CommandManagerImpl(
+            mutableScreenState,
+            viewModelScope,
+            { Log.w("SimpleViewModel", it) },
+            { message, error ->  Log.w("SimpleViewModel", message, error) }
+        )
     }
 
 
