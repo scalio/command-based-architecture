@@ -76,7 +76,8 @@ data class DataState<ChildKey, ChildState>(
  */
 abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : ChildViewModel<ChildState>>(
     private val mainThreadScheduler: Scheduler,
-    private val loggerCallback: ((message: String) -> Unit)? = null
+    private val loggerCallback: ((message: String) -> Unit)? = null,
+    private val errorLoggerCallback: ((message: String, error: Throwable) -> Unit)? = null
 ) {
 
     protected open val mutableDataState =
@@ -94,7 +95,8 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
             mutableDataState,
             mainThreadScheduler,
             compositeDisposable,
-            loggerCallback
+            loggerCallback,
+            errorLoggerCallback
         )
 
     /**

@@ -75,7 +75,8 @@ data class DataState<ChildKey, ChildState>(
  * ViewModel that will store all child view models and return already existing one with the same key.
  */
 abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : ChildViewModel<ChildState>>(
-    private val loggerCallback: ((message: String) -> Unit)? = null
+    private val loggerCallback: ((message: String) -> Unit)? = null,
+    private val errorLoggerCallback: ((message: String, error: Throwable) -> Unit)? = null
 ) {
 
     protected open val mutableDataState =
@@ -89,7 +90,7 @@ abstract class BaseBroadcastCommandViewModel<ChildKey, ChildState, ChildModel : 
     protected open val viewModelScope = CoroutineScope(Dispatchers.Main)
 
     protected open fun createCommandManager(mutableDataState: MutableLiveData<DataState<ChildKey, ChildState>>): CommandManager<DataState<ChildKey, ChildState>> =
-        CommandManagerImpl(mutableDataState, viewModelScope, loggerCallback)
+        CommandManagerImpl(mutableDataState, viewModelScope, loggerCallback, errorLoggerCallback)
 
     /**
      * Will get existing view model with the same key or create a new one
