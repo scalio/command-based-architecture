@@ -2,6 +2,7 @@ package io.scal.commandbasedarchitecture
 
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 import io.scal.commandbasedarchitecture.model.removeAll
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -44,9 +45,9 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
         throw IllegalStateException("not implemented")
     }
 
-    open fun executeCommandFlow(dataState: DataState): Flow<CommandResult> =
+    open fun executeCommandFlow(dataState: () -> DataState): Flow<CommandResult> =
         callbackFlow {
-            offer(executeCommand(dataState))
+            offer(executeCommand(dataState()))
             close()
         }
 

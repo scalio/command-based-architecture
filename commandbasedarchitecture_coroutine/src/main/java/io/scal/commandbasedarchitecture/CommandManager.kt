@@ -146,7 +146,7 @@ class CommandManagerImpl<State>(
                     )
 
                     actionCommand
-                        .executeCommandFlow(getCurrentDataState())
+                        .executeCommandFlow { getCurrentDataState() }
                         .collect {
                             dataState.setValueIfNotTheSame(
                                 actionCommand.onExecuteSuccess(getCurrentDataState(), it)

@@ -1,6 +1,8 @@
 package io.scal.commandbasedarchitecture
 
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Command that is useful for reuse of existing commands but with different one to one data structures.
@@ -30,8 +32,14 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
     override suspend fun executeCommand(dataState: OuterData): OuterResult =
         executeCommandImpl(dataState).let { it.innerToOuterResult() }
 
+    override fun executeCommandFlow(dataState: () -> OuterData): Flow<OuterResult> =
+        executeCommandFlowImpl(dataState).map { it.innerToOuterResult() }
+
     protected open suspend fun executeCommandImpl(dataState: OuterData): InnerResult =
         innerCommand.executeCommand(dataState.outerToInnerData())
+
+    protected open fun executeCommandFlowImpl(dataState: () -> OuterData): Flow<InnerResult> =
+        innerCommand.executeCommandFlow { dataState().outerToInnerData() }
 
     override fun onExecuteSuccess(dataState: OuterData, result: OuterResult): OuterData {
         val innerData = dataState.outerToInnerData()
