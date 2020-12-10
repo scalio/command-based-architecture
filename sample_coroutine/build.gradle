@@ -41,8 +41,8 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(path: ':commandbasedarchitecture_coroutine_livedata')
-//    implementation 'io.scal:commandbasedarchitecture_coroutine:0.5.2'
+//    implementation project(path: ':commandbasedarchitecture_coroutine')
+    implementation 'io.scal:commandbasedarchitecture_coroutine:0.6.1'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 

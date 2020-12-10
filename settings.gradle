@@ -1,4 +1,4 @@
 rootProject.name = 'Command Based Architecture'
 include ':sample_coroutine'
 include ':commandbasedarchitecture_rxjava'
-include ':commandbasedarchitecture_coroutine_livedata'
+include ':commandbasedarchitecture_coroutine'
