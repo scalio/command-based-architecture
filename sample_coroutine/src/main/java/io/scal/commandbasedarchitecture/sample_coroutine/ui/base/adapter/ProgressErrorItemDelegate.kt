@@ -2,6 +2,7 @@ package io.scal.commandbasedarchitecture.sample_coroutine.ui.base.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import io.scal.commandbasedarchitecture.sample_coroutine.R
+import io.scal.commandbasedarchitecture.sample_coroutine.databinding.ItemProgressErrorBinding
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState
@@ -20,6 +21,6 @@ internal class ProgressErrorItemDelegate : AdapterDelegateByClass<UIProgressErro
     ) {
         super.onBindItemViewHolder(item, position, viewHolder, payloads)
 
-        item.handleProgressErrorState(viewHolder.itemView)
+        item.handleProgressErrorState(ItemProgressErrorBinding.bind(viewHolder.itemView))
     }
 }

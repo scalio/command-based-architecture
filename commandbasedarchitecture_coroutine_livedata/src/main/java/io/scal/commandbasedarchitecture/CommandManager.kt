@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import io.scal.commandbasedarchitecture.model.toRemoveOnlyList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -144,10 +145,13 @@ class CommandManagerImpl<State>(
                         actionCommand.onExecuteStarting(getCurrentDataState())
                     )
 
-                    val result = actionCommand.executeCommand(getCurrentDataState())
-                    dataState.setValueIfNotTheSame(
-                        actionCommand.onExecuteSuccess(getCurrentDataState(), result)
-                    )
+                    actionCommand
+                        .executeCommandFlow(getCurrentDataState())
+                        .collect {
+                            dataState.setValueIfNotTheSame(
+                                actionCommand.onExecuteSuccess(getCurrentDataState(), it)
+                            )
+                        }
 
                     logInfoMessage("Execute: EXECUTED - $actionCommand")
                 } catch (e: Throwable) {

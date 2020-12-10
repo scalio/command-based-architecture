@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import io.scal.commandbasedarchitecture.sample_coroutine.R
+import io.scal.commandbasedarchitecture.sample_coroutine.databinding.FragmentDetailsBinding
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.showNoProgressErrorState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.root.RootActivity
-import kotlinx.android.synthetic.main.fragment_details.*
 
 class ItemDetailsFragment : Fragment() {
 
@@ -24,12 +23,16 @@ class ItemDetailsFragment : Fragment() {
         if (RootActivity.userBroadcastViewModels) broadCastViewModelInstance else simpleViewModelInstance
     }
 
+    private var binding: FragmentDetailsBinding? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_details, container!!, false)
+    ): View {
+        binding = FragmentDetailsBinding.inflate(inflater, container!!, false)
+        return binding!!.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,15 +43,17 @@ class ItemDetailsFragment : Fragment() {
         viewModelInstance.itemUid = itemUid
         viewModelInstance.reload()
 
-        initSwipeToRefreshView()
-        initStateModel()
+        val realBinding = binding!!
+
+        initSwipeToRefreshView(realBinding)
+        initStateModel(realBinding)
     }
 
-    private fun initSwipeToRefreshView() {
-        srlData.setOnRefreshListener { viewModelInstance.reload() }
+    private fun initSwipeToRefreshView(realBinding: FragmentDetailsBinding) {
+        realBinding.srlData.setOnRefreshListener { viewModelInstance.reload() }
     }
 
-    private fun initStateModel() {
+    private fun initStateModel(realBinding: FragmentDetailsBinding) {
         viewModelInstance.screenState
             .observe(
                 viewLifecycleOwner,
@@ -59,22 +64,22 @@ class ItemDetailsFragment : Fragment() {
                         // we do not have item data yet -> it is loading or we have loading error
                         null -> {
                             if (dataState.refreshStatus is UIProgressErrorItem.Progress) {
-                                showNoProgressErrorState(progressError)
+                                showNoProgressErrorState(realBinding.progressError)
                             } else {
-                                dataState.refreshStatus.handleProgressErrorState(progressError)
+                                dataState.refreshStatus.handleProgressErrorState(realBinding.progressError)
                             }
-                            content.visibility = View.GONE
+                            realBinding.content.visibility = View.GONE
                         }
                         // we have some data -> lets show it
                         else -> {
-                            showNoProgressErrorState(progressError)
-                            content.visibility = View.VISIBLE
+                            showNoProgressErrorState(realBinding.progressError)
+                            realBinding.content.visibility = View.VISIBLE
 
-                            tvTitle.text = item.title
+                            realBinding.tvTitle.text = item.title
 
                             if (item.favoriteState.favorite) {
-                                addToFavorite.visibility = View.GONE
-                                removeFromFavorite
+                                realBinding.addToFavorite.visibility = View.GONE
+                                realBinding.removeFromFavorite
                                     .apply {
                                         visibility = View.VISIBLE
                                         setOnClickListener {
@@ -82,8 +87,8 @@ class ItemDetailsFragment : Fragment() {
                                         }
                                     }
                             } else {
-                                removeFromFavorite.visibility = View.GONE
-                                addToFavorite
+                                realBinding.removeFromFavorite.visibility = View.GONE
+                                realBinding.addToFavorite
                                     .apply {
                                         visibility = View.VISIBLE
                                         setOnClickListener {
@@ -94,7 +99,7 @@ class ItemDetailsFragment : Fragment() {
                         }
                     }
 
-                    srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
+                    realBinding.srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
                 }
             )
     }

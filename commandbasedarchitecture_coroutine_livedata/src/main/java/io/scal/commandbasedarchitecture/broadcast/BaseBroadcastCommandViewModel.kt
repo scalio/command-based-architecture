@@ -10,10 +10,10 @@ import io.scal.commandbasedarchitecture.CommandManagerImpl
 import io.scal.commandbasedarchitecture.DataConvertCommandSameResult
 import io.scal.commandbasedarchitecture.model.readNullOrValue
 import io.scal.commandbasedarchitecture.model.writeToParcel
-import kotlinx.android.parcel.Parceler
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.parcelize.Parceler
+import kotlinx.parcelize.Parcelize
 import java.lang.ref.SoftReference
 
 interface ChildViewModel<ChildState> {
