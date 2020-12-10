@@ -1,8 +1,6 @@
 package io.scal.commandbasedarchitecture
 
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 /**
  * Command that is useful for reuse of existing commands but with different one to one data structures.
@@ -30,16 +28,26 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
     }
 
     override suspend fun executeCommand(dataState: OuterData): OuterResult =
-        executeCommandImpl(dataState).let { it.innerToOuterResult() }
+        executeCommandImpl(dataState).innerToOuterResult()
 
-    override fun executeCommandFlow(dataState: () -> OuterData): Flow<OuterResult> =
-        executeCommandFlowImpl(dataState).map { it.innerToOuterResult() }
+    override suspend fun executeCommandWithSideEffects(
+        getCurrentDataState: () -> OuterData,
+        updateCurrentDataState: (OuterData) -> Unit
+    ): OuterResult =
+        executeCommandWithSideEffectsImpl(getCurrentDataState, updateCurrentDataState)
+            .innerToOuterResult()
 
     protected open suspend fun executeCommandImpl(dataState: OuterData): InnerResult =
         innerCommand.executeCommand(dataState.outerToInnerData())
 
-    protected open fun executeCommandFlowImpl(dataState: () -> OuterData): Flow<InnerResult> =
-        innerCommand.executeCommandFlow { dataState().outerToInnerData() }
+    protected open suspend fun executeCommandWithSideEffectsImpl(
+        getCurrentDataState: () -> OuterData,
+        updateCurrentDataState: (OuterData) -> Unit
+    ): InnerResult =
+        innerCommand.executeCommandWithSideEffects(
+            { getCurrentDataState().outerToInnerData() },
+            { updateCurrentDataState(innerToOuterData(getCurrentDataState(), it)) }
+        )
 
     override fun onExecuteSuccess(dataState: OuterData, result: OuterResult): OuterData {
         val innerData = dataState.outerToInnerData()

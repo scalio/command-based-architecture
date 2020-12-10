@@ -2,12 +2,6 @@ package io.scal.commandbasedarchitecture
 
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 import io.scal.commandbasedarchitecture.model.removeAll
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
 
 /**
  * Base class for all commands.
@@ -42,14 +36,14 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * @see ActionCommand.onExecuteFail
      */
     open suspend fun executeCommand(dataState: DataState): CommandResult {
-        throw IllegalStateException("not implemented")
+        throw IllegalStateException("executeCommand or executeCommandWithSideEffects should be implemented")
     }
 
-    open fun executeCommandFlow(dataState: () -> DataState): Flow<CommandResult> =
-        callbackFlow {
-            offer(executeCommand(dataState()))
-            close()
-        }
+    open suspend fun executeCommandWithSideEffects(
+        getCurrentDataState: () -> DataState,
+        updateCurrentDataState: (DataState) -> Unit,
+    ): CommandResult =
+        executeCommand(getCurrentDataState())
 
     /**
      * Called if command executed normally
