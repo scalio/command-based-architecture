@@ -35,7 +35,15 @@ abstract class ActionCommand<CommandResult, DataState : Any?> {
      * @see ActionCommand.onExecuteSuccess
      * @see ActionCommand.onExecuteFail
      */
-    abstract suspend fun executeCommand(dataState: DataState): CommandResult
+    open suspend fun executeCommand(dataState: DataState): CommandResult {
+        throw IllegalStateException("executeCommand or executeCommandWithSideEffects should be implemented")
+    }
+
+    open suspend fun executeCommandWithSideEffects(
+        getCurrentDataState: () -> DataState,
+        updateCurrentDataState: (DataState) -> Unit,
+    ): CommandResult =
+        executeCommand(getCurrentDataState())
 
     /**
      * Called if command executed normally

@@ -28,10 +28,26 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
     }
 
     override suspend fun executeCommand(dataState: OuterData): OuterResult =
-        executeCommandImpl(dataState).let { it.innerToOuterResult() }
+        executeCommandImpl(dataState).innerToOuterResult()
+
+    override suspend fun executeCommandWithSideEffects(
+        getCurrentDataState: () -> OuterData,
+        updateCurrentDataState: (OuterData) -> Unit
+    ): OuterResult =
+        executeCommandWithSideEffectsImpl(getCurrentDataState, updateCurrentDataState)
+            .innerToOuterResult()
 
     protected open suspend fun executeCommandImpl(dataState: OuterData): InnerResult =
         innerCommand.executeCommand(dataState.outerToInnerData())
+
+    protected open suspend fun executeCommandWithSideEffectsImpl(
+        getCurrentDataState: () -> OuterData,
+        updateCurrentDataState: (OuterData) -> Unit
+    ): InnerResult =
+        innerCommand.executeCommandWithSideEffects(
+            { getCurrentDataState().outerToInnerData() },
+            { updateCurrentDataState(innerToOuterData(getCurrentDataState(), it)) }
+        )
 
     override fun onExecuteSuccess(dataState: OuterData, result: OuterResult): OuterData {
         val innerData = dataState.outerToInnerData()

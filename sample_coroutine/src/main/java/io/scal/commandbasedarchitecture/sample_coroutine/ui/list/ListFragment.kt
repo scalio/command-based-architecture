@@ -9,7 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.scal.commandbasedarchitecture.model.dataAndNextPageLoadingStatus
-import io.scal.commandbasedarchitecture.sample_coroutine.R
+import io.scal.commandbasedarchitecture.sample_coroutine.databinding.FragmentListBinding
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.listenForEndScroll
@@ -17,7 +17,6 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.showNoProg
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.details.ItemDetailsFragment
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.adapter.ListAdapter
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.root.RootActivity
-import kotlinx.android.synthetic.main.fragment_list.*
 
 class ListFragment : Fragment() {
 
@@ -35,36 +34,42 @@ class ListFragment : Fragment() {
         }
     }
 
+    private var binding: FragmentListBinding? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_list, container!!, false)
+    ): View {
+        binding = FragmentListBinding.inflate(inflater, container!!, false)
+        return binding!!.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initRecyclerView()
-        initStateModel()
+        val readBinding = binding!!
+
+        initRecyclerView(readBinding)
+        initStateModel(readBinding)
     }
 
     private fun navigateToItemDetails(uiMainItem: UIMainItem, rootActivity: RootActivity) {
         rootActivity.addNewFragment(ItemDetailsFragment.createScreen(uiMainItem.uid))
     }
 
-    private fun initRecyclerView() {
-        rvData.setHasFixedSize(true)
-        rvData.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        rvData.adapter = adapter
+    private fun initRecyclerView(readBinding: FragmentListBinding) {
+        readBinding.rvData.setHasFixedSize(true)
+        readBinding.rvData.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        readBinding.rvData.adapter = adapter
 
-        srlData.setOnRefreshListener { viewModelInstance.reload() }
+        readBinding.srlData.setOnRefreshListener { viewModelInstance.reload() }
 
         // simple realization for next page loading trigger
-        rvData.listenForEndScroll(4) { viewModelInstance.loadNextPage() }
+        readBinding.rvData.listenForEndScroll(4) { viewModelInstance.loadNextPage() }
     }
 
-    private fun initStateModel() {
+    private fun initStateModel(readBinding: FragmentListBinding) {
         viewModelInstance.screenState
             .observe(
                 viewLifecycleOwner,
@@ -75,31 +80,31 @@ class ListFragment : Fragment() {
                     when {
                         // we do not have any data or next page loading status -> empty loading or empty error state
                         items == null -> {
-                            emptyData.visibility = View.GONE
+                            readBinding.emptyData.visibility = View.GONE
                             if (dataState.refreshStatus is UIProgressErrorItem.Progress) {
                                 // we do not want double progress indicator for loading, we just use STR all the time
-                                showNoProgressErrorState(progressError)
+                                showNoProgressErrorState(readBinding.progressError)
                             } else {
-                                dataState.refreshStatus.handleProgressErrorState(progressError)
+                                dataState.refreshStatus.handleProgressErrorState(readBinding.progressError)
                             }
                             adapter.releaseData()
                         }
                         // we do not have any data -> empty data state
                         items.isEmpty() -> {
-                            emptyData.visibility = View.VISIBLE
-                            showNoProgressErrorState(progressError)
+                            readBinding.emptyData.visibility = View.VISIBLE
+                            showNoProgressErrorState(readBinding.progressError)
                             adapter.releaseData()
                         }
                         // we have some data to show -> data state
                         else -> {
-                            emptyData.visibility = View.GONE
-                            showNoProgressErrorState(progressError)
+                            readBinding.emptyData.visibility = View.GONE
+                            showNoProgressErrorState(readBinding.progressError)
                             adapter.setupData(items)
                         }
                     }
 
                     // we always show STR progress if any
-                    srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
+                    readBinding.srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
                 }
             )
     }

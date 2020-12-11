@@ -2,9 +2,9 @@ package io.scal.commandbasedarchitecture.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.android.parcel.Parceler
-import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.RawValue
+import kotlinx.parcelize.Parceler
+import kotlinx.parcelize.RawValue
+import kotlinx.parcelize.Parcelize
 
 /**
  * Base class for storing pagination result (lists)

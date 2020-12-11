@@ -1,5 +1,6 @@
 package io.scal.commandbasedarchitecture
 
+import android.os.Looper
 import androidx.annotation.MainThread
 import androidx.lifecycle.MutableLiveData
 import io.scal.commandbasedarchitecture.model.toRemoveOnlyList
@@ -144,7 +145,17 @@ class CommandManagerImpl<State>(
                         actionCommand.onExecuteStarting(getCurrentDataState())
                     )
 
-                    val result = actionCommand.executeCommand(getCurrentDataState())
+                    val result = actionCommand
+                        .executeCommandWithSideEffects(
+                            {
+                                checkMainThread()
+                                getCurrentDataState()
+                            },
+                            {
+                                checkMainThread()
+                                dataState.setValueIfNotTheSame(it)
+                            }
+                        )
                     dataState.setValueIfNotTheSame(
                         actionCommand.onExecuteSuccess(getCurrentDataState(), result)
                     )
@@ -183,6 +194,12 @@ class CommandManagerImpl<State>(
 
     private fun logErrorMessage(message: String, e: Throwable) {
         errorLoggerCallback?.invoke(message, e)
+    }
+
+    private fun checkMainThread() {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            throw IllegalStateException("can be called only on MainThread")
+        }
     }
 }
 
