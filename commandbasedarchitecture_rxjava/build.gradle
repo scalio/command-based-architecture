@@ -1,14 +1,14 @@
 buildscript {
     repositories {
-        jcenter()
         google()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+        classpath 'com.android.tools.build:gradle:4.2.1'
         classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
         classpath "com.github.dcendents:android-maven-plugin:1.2"
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.18"
     }
 }
 
@@ -16,72 +16,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
-
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-//////////////////////////////// Upload to BinTray ////////////////////////////////
-group = "io.scal"
-final def siteUrl = 'https://github.com/scalio/command-based-architecture'
-final def gitUrl = "https://github.com/scalio/command-based-architecture.git"
-// This is the library version used when deploying the artifact
-version = "0.5.2"
-
-final Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ["archives"]
-    pkg {
-        repo = "android-maven"
-        name = "command-based-architecture-rxjava"
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'jar'
-
-            // Add your description here
-            name "Command Based Architecture for simple synchronization logic. Description is here: https://github.com/scalio/command-based-architecture"
-            url siteUrl
-
-            // Set your license
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                }
-            }
-            developers {
-                developer {
-                    id 'mig35'
-                    name 'Mikhail Gurevich'
-                    email 'mig35@mig35.com'
-                }
-                developer {
-                    id 'scalio'
-                    name 'Scalio'
-                    url 'https://scal.io'
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
-                url siteUrl
-            }
-        }
-    }
-}
-//////////////////////////////// Upload to BinTray ////////////////////////////////
-
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -104,29 +39,21 @@ android {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
 
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation "androidx.annotation:annotation:1.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.architectureComponentsVersion}"
 }
 
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    archiveClassifier.set("sources")
+ext {
+    PUBLISH_GROUP_ID = 'io.scal'
+    PUBLISH_VERSION = '0.6.6'
+    PUBLISH_ARTIFACT_ID = 'commandbasedarchitecture_rxjava'
 }
 
-artifacts {
-    archives sourcesJar
-}
-
-// Excluding aar artifacts from uploading
-configurations.archives.artifacts.with { archives ->
-    for (def iter = archives.iterator(); iter.hasNext();) {
-        if (iter.next().file =~ 'aar') iter.remove();
-    }
-}
+apply from: "publish-module.gradle"

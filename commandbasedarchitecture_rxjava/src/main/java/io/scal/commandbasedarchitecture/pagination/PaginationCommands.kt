@@ -57,7 +57,7 @@ open class LoadNextCommand<
         UIDataItem : UIBaseItem,
         UIProgressItem : UIBaseItem,
         UIErrorItem : UIBaseItem,
-        Data : io.scal.commandbasedarchitecture.model.PageData<UIDataItem>>
+        Data : PageData<UIDataItem>>
     (
     private val loadNextAction: (PaginationState<UIBaseItem, UIDataItem, Data>) -> Single<Data>,
     private val progressUiItem: () -> UIProgressItem,
@@ -109,7 +109,7 @@ open class LoadNextWithPageNumberCommand<
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = LoadNextStrategy()
 ) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
+    LoadNextCommand(
         { loadNextAction(it.pageData!!.nextPageNumber!!) },
         progressUiItem,
         errorToUIItem,
@@ -160,7 +160,7 @@ open class LoadNextWithLatestItemCommand<
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: SingleStrategy = LoadNextStrategy()
 ) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
+    LoadNextCommand(
         { loadNextAction(it.pageData!!.latestItem!!) },
         progressUiItem,
         errorToUIItem,
