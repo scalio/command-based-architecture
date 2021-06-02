@@ -21,12 +21,8 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.root.RootActivity
 class ListFragment : Fragment() {
 
     private val simpleViewModelInstance: ListViewModel by viewModels<SimpleListViewModel>()
-    private val broadCastViewModelInstance: ListViewModel by viewModels<BroadcastListViewModel>()
 
-    @Suppress("ConstantConditionIf")
-    private val viewModelInstance: ListViewModel by lazy {
-        if (RootActivity.userBroadcastViewModels) broadCastViewModelInstance else simpleViewModelInstance
-    }
+    private val viewModelInstance: ListViewModel by lazy { simpleViewModelInstance }
 
     private val adapter by lazy {
         ListAdapter(viewModelInstance) {
