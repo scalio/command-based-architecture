@@ -11,17 +11,12 @@ import io.scal.commandbasedarchitecture.sample_coroutine.databinding.FragmentDet
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.handleProgressErrorState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.view.showNoProgressErrorState
-import io.scal.commandbasedarchitecture.sample_coroutine.ui.root.RootActivity
 
 class ItemDetailsFragment : Fragment() {
 
     private val simpleViewModelInstance: DetailsViewModel by viewModels<SimpleDetailsViewModel>()
-    private val broadCastViewModelInstance: DetailsViewModel by viewModels<BroadcastDetailsViewModel>()
 
-    @Suppress("ConstantConditionIf")
-    private val viewModelInstance: DetailsViewModel by lazy {
-        if (RootActivity.userBroadcastViewModels) broadCastViewModelInstance else simpleViewModelInstance
-    }
+    private val viewModelInstance: DetailsViewModel by lazy { simpleViewModelInstance }
 
     private var binding: FragmentDetailsBinding? = null
 
@@ -99,7 +94,8 @@ class ItemDetailsFragment : Fragment() {
                         }
                     }
 
-                    realBinding.srlData.isRefreshing = dataState.refreshStatus is UIProgressErrorItem.Progress
+                    realBinding.srlData.isRefreshing =
+                        dataState.refreshStatus is UIProgressErrorItem.Progress
                 }
             )
     }

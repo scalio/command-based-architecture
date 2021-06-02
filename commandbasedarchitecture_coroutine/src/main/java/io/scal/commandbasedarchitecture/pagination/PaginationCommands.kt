@@ -101,7 +101,7 @@ open class LoadNextWithPageNumberCommand<
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = LoadNextStrategy()
 ) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
+    LoadNextCommand(
         { loadNextAction(it.pageData!!.nextPageNumber!!) },
         progressUiItem,
         errorToUIItem,
@@ -152,7 +152,7 @@ open class LoadNextWithLatestItemCommand<
     errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: SingleStrategy = LoadNextStrategy()
 ) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand<UIBaseItem, UIDataItem, UIProgressItem, UIErrorItem, Data>(
+    LoadNextCommand(
         { loadNextAction(it.pageData!!.latestItem!!) },
         progressUiItem,
         errorToUIItem,
