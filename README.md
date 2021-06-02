@@ -32,7 +32,7 @@ For coroutine implementation:
     implementation 'io.scal:commandbasedarchitecture_coroutine:version'
 ```
 
-Please replace `version` with the latest version: [![Download](https://api.bintray.com/packages/mig35/android-maven/command-based-architecture-coroutine/images/download.svg)](https://bintray.com/mig35/android-maven/command-based-architecture-coroutine/_latestVersion)
+Please replace `version` with the latest version: <a href="https://maven-badges.herokuapp.com/maven-central/io.scal/commandbasedarchitecture_coroutine"><img src="https://maven-badges.herokuapp.com/maven-central/io.scal/commandbasedarchitecture_coroutine/badge.svg" /></a>
 
 
 For RxJava implementation:
@@ -40,7 +40,7 @@ For RxJava implementation:
     implementation 'io.scal:commandbasedarchitecture_rxjava:version'
 ```
 
-Please replace `version` with the latest version: [![Download](https://api.bintray.com/packages/mig35/android-maven/command-based-architecture-rxjava/images/download.svg)](https://bintray.com/mig35/android-maven/command-based-architecture-rxjava/_latestVersion)
+Please replace `version` with the latest version: <a href="https://maven-badges.herokuapp.com/maven-central/io.scal/commandbasedarchitecture_rxjava"><img src="https://maven-badges.herokuapp.com/maven-central/io.scal/commandbasedarchitecture_rxjava/badge.svg" /></a>
 
 
 ## How to use
