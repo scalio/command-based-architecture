@@ -1,7 +1,6 @@
 package io.scal.commandbasedarchitecture.managers
 
 import android.os.Looper
-import androidx.annotation.MainThread
 import io.scal.commandbasedarchitecture.commands.Command
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -16,25 +15,21 @@ abstract class CommandManager<State>(
 
     private val activated = AtomicBoolean(true)
 
-    @MainThread
     override fun postCommand(actionCommand: Command<*, State>) {
         addToPendingActionIfShould(actionCommand)
     }
 
-    @MainThread
     override fun clearPendingCommands(clearRule: (Command<*, State>) -> Boolean) {
         val wasCommands = executionController.getPendingCommands().size
         executionController.clearPendingCommands(clearRule)
         logInfoMessage("Clear: was - $wasCommands, now - ${executionController.getPendingCommands().size}")
     }
 
-    @MainThread
     override fun blockExecutions() {
         activated.set(false)
         logInfoMessage("Execution: BLOCKED")
     }
 
-    @MainThread
     override fun allowExecutions() {
         activated.set(true)
         logInfoMessage("Execution: ALLOWED")
