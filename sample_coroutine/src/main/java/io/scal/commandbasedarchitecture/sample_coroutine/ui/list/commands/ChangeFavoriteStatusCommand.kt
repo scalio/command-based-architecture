@@ -1,7 +1,7 @@
 package io.scal.commandbasedarchitecture.sample_coroutine.ui.list.commands
 
-import io.scal.commandbasedarchitecture.ActionCommandWithStrategy
-import io.scal.commandbasedarchitecture.ConcurrentStrategyWithTag
+import io.scal.commandbasedarchitecture.commands.Command
+import io.scal.commandbasedarchitecture.commands.ConcurrentStrategyWithTag
 import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.FavoriteState
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.ListScreenState
@@ -19,7 +19,7 @@ internal class ChangeFavoriteStatusCommand(
     private val changeToFavorite: Boolean,
     private val changeFavoriteAction: suspend () -> Unit,
     private val onFavoriteChangeFailed: (Throwable) -> Unit
-) : ActionCommandWithStrategy<Unit, ListScreenState>(ConcurrentStrategyWithTag(mainItemUid)) {
+) : Command<Unit, ListScreenState>(ConcurrentStrategyWithTag(mainItemUid)) {
 
     override fun onCommandWasAdded(dataState: ListScreenState): ListScreenState =
         // we update item state only if the list contains this item

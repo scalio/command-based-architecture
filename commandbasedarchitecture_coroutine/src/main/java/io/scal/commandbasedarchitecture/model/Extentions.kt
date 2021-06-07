@@ -1,7 +1,7 @@
 package io.scal.commandbasedarchitecture.model
 
 import android.os.Parcel
-import io.scal.commandbasedarchitecture.CommandManager
+import io.scal.commandbasedarchitecture.managers.ICommandManager
 
 
 fun <UIBaseItem, UIDataItem : UIBaseItem, Data : PageData<UIDataItem>> applyNewDataToOtherState(
@@ -41,4 +41,4 @@ fun Any?.writeToParcel(parcel: Parcel) {
 }
 
 fun Parcel.readNullOrValue(): Any? =
-    readValue(CommandManager::class.java.classLoader)
+    readValue(ICommandManager::class.java.classLoader)

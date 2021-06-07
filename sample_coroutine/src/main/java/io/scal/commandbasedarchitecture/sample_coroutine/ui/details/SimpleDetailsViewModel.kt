@@ -6,8 +6,9 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import io.scal.commandbasedarchitecture.CommandManager
-import io.scal.commandbasedarchitecture.CommandManagerImpl
+import io.scal.commandbasedarchitecture.managers.ExecutionController
+import io.scal.commandbasedarchitecture.managers.ICommandManager
+import io.scal.commandbasedarchitecture.managers.LiveDataCommandManager
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
@@ -23,12 +24,12 @@ class SimpleDetailsViewModel(application: Application) : DetailsViewModel(applic
 
     override val screenState: LiveData<DetailsScreenState> = mutableScreenState
 
-    private val commandManager: CommandManager<DetailsScreenState> by lazy {
-        CommandManagerImpl(
+    private val commandManager: ICommandManager<DetailsScreenState> by lazy {
+        LiveDataCommandManager(
             mutableScreenState,
-            viewModelScope,
+            ExecutionController(viewModelScope),
             { Log.w("SimpleViewModel", it) },
-            { message, error ->  Log.w("SimpleViewModel", message, error) }
+            { message, error -> Log.w("SimpleViewModel", message, error) }
         )
     }
 

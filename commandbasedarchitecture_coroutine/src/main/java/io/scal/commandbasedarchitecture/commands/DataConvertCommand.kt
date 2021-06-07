@@ -1,4 +1,4 @@
-package io.scal.commandbasedarchitecture
+package io.scal.commandbasedarchitecture.commands
 
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
@@ -6,14 +6,12 @@ import io.scal.commandbasedarchitecture.model.RemoveOnlyList
  * Command that is useful for reuse of existing commands but with different one to one data structures.
  */
 open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerData : Any?>(
-    protected val innerCommand: ActionCommand<InnerResult, InnerData>,
+    protected val innerCommand: Command<InnerResult, InnerData>,
     protected val innerToOuterData: (outerData: OuterData, newInnerData: InnerData) -> OuterData,
     protected val outerToInnerData: OuterData.() -> InnerData,
     protected val innerToOuterResult: InnerResult.() -> OuterResult,
     protected val outerToInnerResult: OuterResult.() -> InnerResult
-) : ActionCommand<OuterResult, OuterData>() {
-
-    override val strategy: ExecutionStrategy? = innerCommand.strategy
+) : Command<OuterResult, OuterData>(innerCommand.strategy) {
 
     override fun onCommandWasAdded(dataState: OuterData): OuterData {
         val innerData = dataState.outerToInnerData()
@@ -75,27 +73,23 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
         if (oldInnerData == newInnerData) oldOuterData
         else innerToOuterData(oldOuterData, newInnerData)
 
-    override fun shouldAddToPendingActions(
-        dataState: OuterData,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
+    override fun shouldAddToPendingCommands(
+        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        runningActionCommands: List<Command<*, *>>
     ): Boolean =
-        innerCommand.shouldAddToPendingActions(
-            dataState.outerToInnerData(),
+        innerCommand.shouldAddToPendingCommands(
             pendingActionCommands,
             runningActionCommands
         )
 
-    override fun shouldBlockOtherTask(pendingActionCommand: ActionCommand<*, *>): Boolean =
-        innerCommand.shouldBlockOtherTask(pendingActionCommand)
+    override fun shouldBlockOtherCommand(pendingActionCommand: Command<*, *>): Boolean =
+        innerCommand.shouldBlockOtherCommand(pendingActionCommand)
 
-    override fun shouldExecuteAction(
-        dataState: OuterData,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
+    override fun shouldExecute(
+        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        runningActionCommands: List<Command<*, *>>
     ): Boolean =
-        innerCommand.shouldExecuteAction(
-            dataState.outerToInnerData(),
+        innerCommand.shouldExecute(
             pendingActionCommands,
             runningActionCommands
         )
@@ -109,7 +103,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
  * Command that is useful for reuse of existing commands but with different one to one data structures.
  */
 open class DataConvertCommandSameResult<Result, OuterData : Any?, InnerData : Any?>(
-    innerCommand: ActionCommand<Result, InnerData>,
+    innerCommand: Command<Result, InnerData>,
     innerToOuterData: (outerData: OuterData, newInnerData: InnerData) -> OuterData,
     outerToInnerData: OuterData.() -> InnerData
 ) : DataConvertCommand<Result, OuterData, Result, InnerData>(

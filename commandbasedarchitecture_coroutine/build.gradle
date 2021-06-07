@@ -43,14 +43,14 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0"
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.architectureComponentsVersion}"
 }
 
 ext {
     PUBLISH_GROUP_ID = 'io.scal'
-    PUBLISH_VERSION = '0.7.0'
+    PUBLISH_VERSION = '0.8.0'
     PUBLISH_ARTIFACT_ID = 'commandbasedarchitecture_coroutine'
 }
 

@@ -1,7 +1,9 @@
 package io.scal.commandbasedarchitecture.pagination
 
-import io.scal.commandbasedarchitecture.*
-import io.scal.commandbasedarchitecture.model.*
+import io.scal.commandbasedarchitecture.commands.Command
+import io.scal.commandbasedarchitecture.commands.ExecutionStrategy
+import io.scal.commandbasedarchitecture.model.PageData
+import io.scal.commandbasedarchitecture.model.PaginationState
 
 /**
  * Command that will execute refresh data action with showing refresh progress and SingleTag strategy.
@@ -18,7 +20,7 @@ open class RefreshCommand<
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = RefreshStrategy()
-) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
+) : Command<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
 
     override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(refreshStatus = progressUiItem())
@@ -57,7 +59,7 @@ open class LoadNextCommand<
     private val progressUiItem: () -> UIProgressItem,
     private val errorToUIItem: (Throwable) -> UIErrorItem,
     strategy: ExecutionStrategy = LoadNextStrategy()
-) : ActionCommandWithStrategy<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
+) : Command<Data, PaginationState<UIBaseItem, UIDataItem, Data>>(strategy) {
 
     override fun onCommandWasAdded(dataState: PaginationState<UIBaseItem, UIDataItem, Data>): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(nextPageLoadingStatus = progressUiItem())
@@ -83,106 +85,4 @@ open class LoadNextCommand<
         error: Throwable
     ): PaginationState<UIBaseItem, UIDataItem, Data> =
         dataState.copy(nextPageLoadingStatus = errorToUIItem(error))
-}
-
-/**
- * Command that will execute load next data action while showing page progress and Single strategy.
- * That means only one load next command is able to executed and added to the queue.
- */
-open class LoadNextWithPageNumberCommand<
-        UIBaseItem,
-        UIDataItem : UIBaseItem,
-        UIProgressItem : UIBaseItem,
-        UIErrorItem : UIBaseItem,
-        Data : PageDataWithNextPageNumber<UIDataItem>>
-    (
-    private val loadNextAction: suspend (nextPageNumber: Int) -> Data,
-    progressUiItem: () -> UIProgressItem,
-    errorToUIItem: (Throwable) -> UIErrorItem,
-    strategy: ExecutionStrategy = LoadNextStrategy()
-) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand(
-        { loadNextAction(it.pageData!!.nextPageNumber!!) },
-        progressUiItem,
-        errorToUIItem,
-        strategy
-    ),
-    { _, result -> result },
-    { this }
-) {
-
-    override fun shouldAddToPendingActions(
-        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
-    ): Boolean =
-        null != dataState.pageData?.nextPageNumber &&
-                super.shouldAddToPendingActions(
-                    dataState,
-                    pendingActionCommands,
-                    runningActionCommands
-                )
-
-    override fun shouldExecuteAction(
-        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
-    ): Boolean =
-        if (null == dataState.pageData?.nextPageNumber) {
-            pendingActionCommands.remove(this)
-            false
-        } else {
-            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
-        }
-}
-
-/**
- * Command that will execute load next data action while showing page progress and Single strategy.
- * That means only one load next command is able to be executed and added to the queue.
- */
-open class LoadNextWithLatestItemCommand<
-        UIBaseItem,
-        UIDataItem : UIBaseItem,
-        UIProgressItem : UIBaseItem,
-        UIErrorItem : UIBaseItem,
-        Data : PageDataWithLatestItem<UIDataItem>>
-    (
-    private val loadNextAction: suspend (latestItem: UIDataItem) -> Data,
-    progressUiItem: () -> UIProgressItem,
-    errorToUIItem: (Throwable) -> UIErrorItem,
-    strategy: SingleStrategy = LoadNextStrategy()
-) : DataConvertCommandSameResult<Data, PaginationState<UIBaseItem, UIDataItem, Data>, PaginationState<UIBaseItem, UIDataItem, Data>>(
-    LoadNextCommand(
-        { loadNextAction(it.pageData!!.latestItem!!) },
-        progressUiItem,
-        errorToUIItem,
-        strategy
-    ),
-    { _, result -> result },
-    { this }
-) {
-
-    override fun shouldAddToPendingActions(
-        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
-    ): Boolean =
-        null != dataState.pageData?.latestItem &&
-                super.shouldAddToPendingActions(
-                    dataState,
-                    pendingActionCommands,
-                    runningActionCommands
-                )
-
-    override fun shouldExecuteAction(
-        dataState: PaginationState<UIBaseItem, UIDataItem, Data>,
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
-    ): Boolean =
-        if (null == dataState.pageData?.latestItem) {
-            pendingActionCommands.remove(this)
-            false
-        } else {
-            super.shouldExecuteAction(dataState, pendingActionCommands, runningActionCommands)
-        }
 }
