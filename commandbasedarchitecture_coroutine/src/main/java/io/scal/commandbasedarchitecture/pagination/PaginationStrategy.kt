@@ -1,7 +1,7 @@
 package io.scal.commandbasedarchitecture.pagination
 
-import io.scal.commandbasedarchitecture.ActionCommand
-import io.scal.commandbasedarchitecture.SingleWithTagStrategy
+import io.scal.commandbasedarchitecture.commands.Command
+import io.scal.commandbasedarchitecture.commands.SingleWithTagStrategy
 import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
 /**
@@ -20,8 +20,8 @@ open class RefreshStrategy(tag: String = "RefreshStrategy") : SingleWithTagStrat
 open class LoadNextStrategy(tag: String = "LoadNext") : SingleWithTagStrategy(tag) {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<ActionCommand<*, *>>,
-        runningActionCommands: List<ActionCommand<*, *>>
+        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        runningActionCommands: List<Command<*, *>>
     ): Boolean =
         super.shouldAddToPendingActions(pendingActionCommands, runningActionCommands)
                 && !pendingActionCommands.any { it.strategy is RefreshStrategy }

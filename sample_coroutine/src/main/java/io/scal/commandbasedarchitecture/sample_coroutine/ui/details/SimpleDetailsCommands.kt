@@ -1,8 +1,8 @@
 package io.scal.commandbasedarchitecture.sample_coroutine.ui.details
 
-import io.scal.commandbasedarchitecture.ActionCommandWithStrategy
-import io.scal.commandbasedarchitecture.ConcurrentStrategy
-import io.scal.commandbasedarchitecture.SingleStrategy
+import io.scal.commandbasedarchitecture.commands.Command
+import io.scal.commandbasedarchitecture.commands.ConcurrentStrategy
+import io.scal.commandbasedarchitecture.commands.SingleStrategy
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
@@ -11,7 +11,7 @@ class ReloadDetailsCommand(
     private val refreshAction: suspend () -> UIMainItem,
     private val errorToUIItem: (Throwable) -> UIItem
 ) :
-    ActionCommandWithStrategy<UIMainItem, DetailsScreenState>(SingleStrategy()) {
+    Command<UIMainItem, DetailsScreenState>(SingleStrategy()) {
 
     override fun onExecuteStarting(dataState: DetailsScreenState): DetailsScreenState =
         dataState.copy(refreshStatus = UIProgressErrorItem.Progress)
@@ -40,7 +40,7 @@ class ChangeFavoriteStatusCommand(
     private val changeFavoriteAction: suspend () -> Unit,
     private val onFavoriteChangeFailed: (Throwable) -> Unit
 ) :
-    ActionCommandWithStrategy<Unit, DetailsScreenState>(ConcurrentStrategy()) {
+    Command<Unit, DetailsScreenState>(ConcurrentStrategy()) {
 
     override fun onExecuteStarting(dataState: DetailsScreenState): DetailsScreenState =
         dataState.item

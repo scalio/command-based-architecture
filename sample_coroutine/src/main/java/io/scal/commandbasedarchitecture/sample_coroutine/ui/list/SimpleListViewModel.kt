@@ -6,10 +6,11 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import io.scal.commandbasedarchitecture.CommandManager
-import io.scal.commandbasedarchitecture.CommandManagerImpl
+import io.scal.commandbasedarchitecture.managers.ExecutionController
+import io.scal.commandbasedarchitecture.managers.ICommandManager
+import io.scal.commandbasedarchitecture.managers.LiveDataCommandManager
 import io.scal.commandbasedarchitecture.model.PageDataWithNextPageNumber
-import io.scal.commandbasedarchitecture.pagination.LoadNextWithPageNumberCommand
+import io.scal.commandbasedarchitecture.pagination.LoadNextCommand
 import io.scal.commandbasedarchitecture.pagination.RefreshCommand
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
@@ -23,12 +24,12 @@ class SimpleListViewModel(application: Application) : ListViewModel(application)
         ListScreenState(null, null, null)
     )
     override val screenState: LiveData<ListScreenState> = mutableScreenState
-    override val commandManager: CommandManager<ListScreenState> by lazy {
-        CommandManagerImpl(
+    override val commandManager: ICommandManager<ListScreenState> by lazy {
+        LiveDataCommandManager(
             mutableScreenState,
-            viewModelScope,
+            ExecutionController(viewModelScope),
             { Log.w("SimpleViewModel", it) },
-            { message, error ->  Log.w("SimpleViewModel", message, error) }
+            { message, error -> Log.w("SimpleViewModel", message, error) }
         )
     }
 
@@ -48,8 +49,14 @@ class SimpleListViewModel(application: Application) : ListViewModel(application)
 
     override fun loadNextPage() {
         commandManager.postCommand(
-            LoadNextWithPageNumberCommand(
-                { executeLoadNextPage(it) },
+            LoadNextCommand(
+                {
+                    val nextPageNumber = it.pageData?.nextPageNumber
+                    if (null == nextPageNumber)
+                        PageDataWithNextPageNumber(emptyList(), null)
+                    else
+                        executeLoadNextPage(nextPageNumber)
+                },
                 { UIProgressErrorItem.Progress },
                 { UIProgressErrorItem.Error(it.toString()) { loadNextPage() } }
             )
