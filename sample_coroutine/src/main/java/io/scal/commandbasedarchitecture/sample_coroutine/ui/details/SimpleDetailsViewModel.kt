@@ -4,28 +4,32 @@ import android.app.Application
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import io.scal.commandbasedarchitecture.managers.ExecutionController
+import io.scal.commandbasedarchitecture.managers.FlowCommandManager
 import io.scal.commandbasedarchitecture.managers.ICommandManager
-import io.scal.commandbasedarchitecture.managers.LiveDataCommandManager
 import io.scal.commandbasedarchitecture.sample_coroutine.repository.HardCodeRepository
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.base.model.UIProgressErrorItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
 import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.toUIMainItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
 class SimpleDetailsViewModel(application: Application) : DetailsViewModel(application) {
 
-    private val mutableScreenState = MutableLiveData(
+    private val mutableScreenState = MutableStateFlow(
         DetailsScreenState(null, null)
     )
 
-    override val screenState: LiveData<DetailsScreenState> = mutableScreenState
+    override val screenState: LiveData<DetailsScreenState> by lazy {
+        mutableScreenState
+            .asLiveData(viewModelScope.coroutineContext)
+    }
 
     private val commandManager: ICommandManager<DetailsScreenState> by lazy {
-        LiveDataCommandManager(
+        FlowCommandManager(
             mutableScreenState,
             ExecutionController(viewModelScope),
             { Log.w("SimpleViewModel", it) },

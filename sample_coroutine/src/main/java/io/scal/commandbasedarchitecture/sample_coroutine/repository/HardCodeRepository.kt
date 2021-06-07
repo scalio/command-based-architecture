@@ -27,7 +27,7 @@ object HardCodeRepository {
                 }
             return if (random.nextInt(100) < 80) result else emptyList()
         } else {
-            throw IllegalStateException("page loading error")
+            throw IllegalStateException("page loading error: $page")
         }
     }
 

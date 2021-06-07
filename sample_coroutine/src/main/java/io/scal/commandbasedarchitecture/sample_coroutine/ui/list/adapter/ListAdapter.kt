@@ -8,11 +8,11 @@ import io.scal.commandbasedarchitecture.sample_coroutine.ui.list.UIMainItem
 
 internal class ListAdapter(
     viewModel: ListViewModel,
-    onItemDetailsClick: (UIMainItem) -> Unit
+    onItemDetailsClick: ((UIMainItem) -> Unit)? = null
 ) : RecyclerViewAdapterDelegated<UIItem>(emptyList()) {
 
     init {
-        addDelegate(ListItemDelegate(viewModel, onItemDetailsClick))
+        addDelegate(ListItemDelegate(viewModel) { onItemDetailsClick?.invoke(it) })
         addDelegate(ProgressErrorItemDelegate())
     }
 }

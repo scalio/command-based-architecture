@@ -64,20 +64,21 @@ abstract class CommandManager<State>(
         }
 
         val firstCommand = executionController.getPendingCommands().firstOrNull() ?: return
-        if (executionController.getRunningCommands().any { it.shouldBlockOtherCommand(firstCommand) }) {
+        if (executionController.getRunningCommands()
+                .any { it.shouldBlockOtherCommand(firstCommand) }
+        ) {
             logInfoMessage("Run: BLOCKED for $firstCommand")
             return
         }
 
-        executionController.executeCommandIfAllowed(firstCommand) {
-            logInfoMessage("Run: ALLOWED for: $firstCommand")
+        executionController.executeCommandIfAllowed(firstCommand,
+            executionBody = {
+                logInfoMessage("Run: ALLOWED for: $firstCommand")
 
-            try {
                 executeCommand(firstCommand)
-            } finally {
-                runPendingActions()
-            }
-        }
+            },
+            commandFinished = { runPendingActions() }
+        )
 
         val newFirstCommand = executionController.getPendingCommands().firstOrNull() ?: return
         if (firstCommand != newFirstCommand) {
