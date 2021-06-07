@@ -25,9 +25,7 @@ class ListFragment : Fragment() {
     private val viewModelInstance: ListViewModel by lazy { simpleViewModelInstance }
 
     private val adapter by lazy {
-        ListAdapter(viewModelInstance) {
-            navigateToItemDetails(it, (activity as? RootActivity) ?: return@ListAdapter)
-        }
+        ListAdapter(viewModelInstance)
     }
 
     private var binding: FragmentListBinding? = null

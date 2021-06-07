@@ -4,6 +4,7 @@ import io.scal.commandbasedarchitecture.commands.Command
 import io.scal.commandbasedarchitecture.model.toRemoveOnlyList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 open class ExecutionController<State>(
@@ -30,18 +31,25 @@ open class ExecutionController<State>(
             false
         }
 
-    open fun executeCommandIfAllowed(command: Command<*, State>, executionBody: suspend () -> Unit) {
-        if (command.shouldExecute(
-                pendingCommands.toRemoveOnlyList(),
-                runningCommands.toList()
-            )
+    open fun executeCommandIfAllowed(
+        command: Command<*, State>,
+        executionBody: suspend () -> Unit,
+        commandFinished: () -> Unit
+    ) {
+        if (
+            coroutineScope.isActive &&
+            command.shouldExecute(pendingCommands.toRemoveOnlyList(), runningCommands.toList())
         ) {
             pendingCommands.remove(command)
             runningCommands.add(command)
 
             coroutineScope
                 .launch(Dispatchers.Main) { executionBody() }
-                .invokeOnCompletion { runningCommands.remove(command) }
+                .invokeOnCompletion {
+                    runningCommands.remove(command)
+
+                    commandFinished()
+                }
         }
     }
 
@@ -49,5 +57,5 @@ open class ExecutionController<State>(
         pendingCommands
 
     internal fun getRunningCommands(): List<Command<*, State>> =
-        pendingCommands
+        runningCommands
 }
