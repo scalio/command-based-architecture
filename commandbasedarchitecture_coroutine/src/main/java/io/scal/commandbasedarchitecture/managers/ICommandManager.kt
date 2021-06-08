@@ -24,12 +24,10 @@ interface ICommandManager<State> {
     /**
      * Will block any pending commands from run. All currently running tasks will be executed normally
      */
-    @MainThread
     fun blockExecutions()
 
     /**
      * Allow normal execution flow
      */
-    @MainThread
     fun allowExecutions()
 }

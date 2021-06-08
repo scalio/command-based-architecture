@@ -28,13 +28,11 @@ abstract class CommandManager<State>(
         logInfoMessage("Clear: was - $wasCommands, now - ${executionController.getPendingCommands().size}")
     }
 
-    @MainThread
     override fun blockExecutions() {
         activated.set(false)
         logInfoMessage("Execution: BLOCKED")
     }
 
-    @MainThread
     override fun allowExecutions() {
         activated.set(true)
         logInfoMessage("Execution: ALLOWED")

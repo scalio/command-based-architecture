@@ -2,7 +2,6 @@ package io.scal.commandbasedarchitecture.pagination
 
 import io.scal.commandbasedarchitecture.commands.Command
 import io.scal.commandbasedarchitecture.commands.SingleWithTagStrategy
-import io.scal.commandbasedarchitecture.model.RemoveOnlyList
 
 /**
  * Base class for Refresh actions.

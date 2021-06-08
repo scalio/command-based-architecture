@@ -1,7 +1,5 @@
 package io.scal.commandbasedarchitecture.commands
 
-import io.scal.commandbasedarchitecture.model.RemoveOnlyList
-
 /**
  * Command that is useful for reuse of existing commands but with different one to one data structures.
  */
