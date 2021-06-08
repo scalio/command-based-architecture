@@ -17,14 +17,14 @@ abstract class CommandManager<State>(
     private val activated = AtomicBoolean(true)
 
     @MainThread
-    override fun postCommand(actionCommand: Command<*, State>) {
+    override fun postCommand(actionCommand: Command<out Any?, State>) {
         addToPendingActionIfShould(actionCommand)
     }
 
     @MainThread
-    override fun clearPendingCommands(clearRule: (Command<*, State>) -> Boolean) {
+    override fun clearPendingCommands() {
         val wasCommands = executionController.getPendingCommands().size
-        executionController.clearPendingCommands(clearRule)
+        executionController.clearPendingCommands()
         logInfoMessage("Clear: was - $wasCommands, now - ${executionController.getPendingCommands().size}")
     }
 
@@ -42,7 +42,7 @@ abstract class CommandManager<State>(
         runPendingActions()
     }
 
-    private fun addToPendingActionIfShould(actionCommand: Command<*, State>) {
+    private fun addToPendingActionIfShould(actionCommand: Command<out Any?, State>) {
         if (executionController.addToPendingCommandsIfShould(actionCommand)) {
             logInfoMessage("Adding: ADDED to the queue - $actionCommand")
 
@@ -71,7 +71,8 @@ abstract class CommandManager<State>(
             return
         }
 
-        executionController.executeCommandIfAllowed(firstCommand,
+        executionController.executeCommandIfAllowed(
+            firstCommand,
             executionBody = {
                 logInfoMessage("Run: ALLOWED for: $firstCommand")
 

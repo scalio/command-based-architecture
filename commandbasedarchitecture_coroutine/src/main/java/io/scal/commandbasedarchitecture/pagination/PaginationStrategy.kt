@@ -20,7 +20,7 @@ open class RefreshStrategy(tag: String = "RefreshStrategy") : SingleWithTagStrat
 open class LoadNextStrategy(tag: String = "LoadNext") : SingleWithTagStrategy(tag) {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         super.shouldAddToPendingActions(pendingActionCommands, runningActionCommands)

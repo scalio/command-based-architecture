@@ -74,7 +74,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
         else innerToOuterData(oldOuterData, newInnerData)
 
     override fun shouldAddToPendingCommands(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         innerCommand.shouldAddToPendingCommands(
@@ -86,7 +86,7 @@ open class DataConvertCommand<OuterResult, OuterData : Any?, InnerResult, InnerD
         innerCommand.shouldBlockOtherCommand(pendingActionCommand)
 
     override fun shouldExecute(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         innerCommand.shouldExecute(

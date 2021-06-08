@@ -13,13 +13,13 @@ interface ICommandManager<State> {
      * @see io.scal.commandbasedarchitecture.commands.ExecutionStrategy
      */
     @MainThread
-    fun postCommand(actionCommand: Command<*, State>)
+    fun postCommand(actionCommand: Command<out Any?, State>)
 
     /**
      * Remove all pending commands that fit the rule
      */
     @MainThread
-    fun clearPendingCommands(clearRule: (Command<*, State>) -> Boolean)
+    fun clearPendingCommands()
 
     /**
      * Will block any pending commands from run. All currently running tasks will be executed normally

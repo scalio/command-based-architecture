@@ -1,8 +1,5 @@
 package io.scal.commandbasedarchitecture.commands
 
-import io.scal.commandbasedarchitecture.model.RemoveOnlyList
-import io.scal.commandbasedarchitecture.model.removeAll
-
 /**
  * Strategy that will be used by CommandManager to control command execution flow.
  */
@@ -15,7 +12,7 @@ interface ExecutionStrategy {
      * @return if the command should be added to execution queue.
      */
     fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean
 
@@ -31,7 +28,7 @@ interface ExecutionStrategy {
      * @return true if command should be executed
      */
     fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean
 }
@@ -42,7 +39,7 @@ interface ExecutionStrategy {
 open class ConcurrentStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         true
@@ -51,7 +48,7 @@ open class ConcurrentStrategy : ExecutionStrategy {
         false
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         true
@@ -64,17 +61,16 @@ open class ConcurrentStrategy : ExecutionStrategy {
 open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy() {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean {
-        pendingActionCommands.removeAll { command ->
+        return !pendingActionCommands.any { command ->
             command.strategy.let { it is ConcurrentStrategyWithTag && it.tag == tag }
         }
-        return true
     }
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         !runningActionCommands.any { command ->
@@ -89,7 +85,7 @@ open class ConcurrentStrategyWithTag(private val tag: Any) : ConcurrentStrategy(
 open class SingleStrategy : ExecutionStrategy {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         !pendingActionCommands.any { it.strategy is SingleStrategy }
@@ -99,7 +95,7 @@ open class SingleStrategy : ExecutionStrategy {
         true
 
     override fun shouldExecuteAction(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         runningActionCommands.isEmpty()
@@ -112,7 +108,7 @@ open class SingleStrategy : ExecutionStrategy {
 open class SingleWithTagStrategy(private val tag: Any) : SingleStrategy() {
 
     override fun shouldAddToPendingActions(
-        pendingActionCommands: RemoveOnlyList<Command<*, *>>,
+        pendingActionCommands: List<Command<*, *>>,
         runningActionCommands: List<Command<*, *>>
     ): Boolean =
         !pendingActionCommands.any { command ->

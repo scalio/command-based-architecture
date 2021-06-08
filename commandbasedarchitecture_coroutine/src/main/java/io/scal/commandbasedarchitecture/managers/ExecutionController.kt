@@ -1,28 +1,23 @@
 package io.scal.commandbasedarchitecture.managers
 
 import io.scal.commandbasedarchitecture.commands.Command
-import io.scal.commandbasedarchitecture.model.toRemoveOnlyList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
-open class ExecutionController<State>(
+open class ExecutionController<State : Any?>(
     private val coroutineScope: CoroutineScope,
+    private val executionController: ExecutionController<Any?>? = null
 ) {
 
     protected val pendingCommands = mutableListOf<Command<*, State>>()
-    protected val runningCommands = mutableListOf<Command<*, State>>()
+    protected val runningCommands = mutableListOf<Command<*, *>>()
 
-    open fun clearPendingCommands(clearRule: (Command<*, State>) -> Boolean) {
-        pendingCommands.removeAll(clearRule)
+    open fun clearPendingCommands() {
+        pendingCommands.clear()
     }
 
     open fun addToPendingCommandsIfShould(command: Command<*, State>): Boolean =
-        if (command.shouldAddToPendingCommands(
-                pendingCommands.toRemoveOnlyList(),
-                runningCommands.toList()
-            )
+        if (
+            command.shouldAddToPendingCommands(pendingCommands.toList(), runningCommands.toList())
         ) {
             pendingCommands.add(command)
 
@@ -32,30 +27,52 @@ open class ExecutionController<State>(
         }
 
     open fun executeCommandIfAllowed(
-        command: Command<*, State>,
+        command: Command<*, *>,
         executionBody: suspend () -> Unit,
         commandFinished: () -> Unit
     ) {
         if (
             coroutineScope.isActive &&
-            command.shouldExecute(pendingCommands.toRemoveOnlyList(), runningCommands.toList())
+            command.shouldExecute(pendingCommands.toList(), runningCommands.toList())
         ) {
-            pendingCommands.remove(command)
-            runningCommands.add(command)
+            if (null == executionController) {
+                pendingCommands.remove(command)
+                runningCommands.add(command)
 
-            coroutineScope
-                .launch(Dispatchers.Main) { executionBody() }
-                .invokeOnCompletion {
-                    runningCommands.remove(command)
+                coroutineScope
+                    .launch(Dispatchers.Main) { executionBody() }
+                    .invokeOnCompletion {
+                        runningCommands.remove(command)
 
-                    commandFinished()
-                }
+                        commandFinished()
+                    }
+            } else {
+                executionController.executeCommandIfAllowed(
+                    command,
+                    {
+                        pendingCommands.remove(command)
+                        runningCommands.add(command)
+
+                        withContext(coroutineScope.coroutineContext + Dispatchers.Main) {
+                            try {
+                                executionBody()
+                            } finally {
+                                runningCommands.remove(command)
+
+                                commandFinished()
+                            }
+                        }
+                    },
+                    { commandFinished() }
+                )
+            }
         }
     }
 
     internal fun getPendingCommands(): List<Command<*, State>> =
-        pendingCommands
+        pendingCommands.toList()
 
+    @Suppress("UNCHECKED_CAST")
     internal fun getRunningCommands(): List<Command<*, State>> =
-        runningCommands
+        runningCommands as List<Command<*, State>>
 }
