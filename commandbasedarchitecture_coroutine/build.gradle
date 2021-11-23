@@ -47,7 +47,7 @@ dependencies {
 
 ext {
     PUBLISH_GROUP_ID = 'io.scal'
-    PUBLISH_VERSION = '0.8.3'
+    PUBLISH_VERSION = '0.8.6'
     PUBLISH_ARTIFACT_ID = 'commandbasedarchitecture_coroutine'
 }
 

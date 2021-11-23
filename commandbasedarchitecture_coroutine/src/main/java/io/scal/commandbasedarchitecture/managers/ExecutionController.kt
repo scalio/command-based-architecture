@@ -2,14 +2,24 @@ package io.scal.commandbasedarchitecture.managers
 
 import io.scal.commandbasedarchitecture.commands.Command
 import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 
 open class ExecutionController<State : Any?>(
     private val coroutineScope: CoroutineScope,
     private val executionController: ExecutionController<Any?>? = null
 ) {
 
+    protected val idleStateListeners = mutableListOf<WeakReference<IdleListener>>()
     protected val pendingCommands = mutableListOf<Command<*, State>>()
     protected val runningCommands = mutableListOf<Command<*, *>>()
+
+    open fun addIdleStateListener(listener: IdleListener) {
+        if (executionController == null) {
+            idleStateListeners.add(WeakReference(listener))
+        } else {
+            executionController.addIdleStateListener(listener)
+        }
+    }
 
     open fun clearPendingCommands() {
         pendingCommands.clear()
@@ -45,6 +55,7 @@ open class ExecutionController<State : Any?>(
                         runningCommands.remove(command)
 
                         commandFinished()
+                        notifyOnIdle()
                     }
             } else {
                 executionController.executeCommandIfAllowed(
@@ -60,12 +71,25 @@ open class ExecutionController<State : Any?>(
                                 runningCommands.remove(command)
 
                                 commandFinished()
+                                notifyOnIdle()
                             }
                         }
                     },
-                    { commandFinished() }
+                    {
+                        commandFinished()
+                        notifyOnIdle()
+                    }
                 )
             }
+        }
+    }
+
+    private fun notifyOnIdle() {
+        if (executionController == null) {
+            idleStateListeners.removeAll { it.get() == null }
+            idleStateListeners.forEach { it.get()?.onIdle() }
+        } else {
+            executionController.notifyOnIdle()
         }
     }
 
@@ -75,4 +99,9 @@ open class ExecutionController<State : Any?>(
     internal fun shouldBlockOtherCommand(command: Command<*, *>): Boolean =
         runningCommands.any { it.shouldBlockOtherCommand(command) }
                 || (executionController?.shouldBlockOtherCommand(command) ?: false)
+
+}
+
+interface IdleListener {
+    fun onIdle()
 }

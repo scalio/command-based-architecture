@@ -12,9 +12,17 @@ abstract class CommandManager<State>(
     private val executionController: ExecutionController<State>,
     private val infoLoggerCallback: ((message: String) -> Unit)? = null,
     private val errorLoggerCallback: ((message: String, error: Throwable) -> Unit)? = null
-) : ICommandManager<State> {
+) : ICommandManager<State>, IdleListener {
 
     private val activated = AtomicBoolean(true)
+
+    init {
+        executionController.addIdleStateListener(this)
+    }
+
+    override fun onIdle() {
+        runPendingActions()
+    }
 
     @MainThread
     override fun postCommand(actionCommand: Command<out Any?, State>) {
