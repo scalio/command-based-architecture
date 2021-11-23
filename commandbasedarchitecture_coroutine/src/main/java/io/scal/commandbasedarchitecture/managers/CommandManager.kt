@@ -62,9 +62,7 @@ abstract class CommandManager<State>(
         }
 
         val firstCommand = executionController.getPendingCommands().firstOrNull() ?: return
-        if (executionController.getRunningCommands()
-                .any { it.shouldBlockOtherCommand(firstCommand) }
-        ) {
+        if (executionController.shouldBlockOtherCommand(firstCommand)) {
             logInfoMessage("Run: BLOCKED for $firstCommand")
             return
         }

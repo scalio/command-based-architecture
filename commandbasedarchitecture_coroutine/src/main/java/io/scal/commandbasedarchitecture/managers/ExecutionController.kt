@@ -72,7 +72,7 @@ open class ExecutionController<State : Any?>(
     internal fun getPendingCommands(): List<Command<*, State>> =
         pendingCommands.toList()
 
-    @Suppress("UNCHECKED_CAST")
-    internal fun getRunningCommands(): List<Command<*, State>> =
-        runningCommands as List<Command<*, State>>
+    internal fun shouldBlockOtherCommand(command: Command<*, *>): Boolean =
+        runningCommands.any { it.shouldBlockOtherCommand(command) }
+                || (executionController?.shouldBlockOtherCommand(command) ?: false)
 }

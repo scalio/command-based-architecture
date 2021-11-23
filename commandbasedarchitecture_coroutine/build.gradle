@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
         classpath "com.github.dcendents:android-maven-plugin:1.2"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.18"
@@ -24,8 +24,6 @@ android {
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -49,7 +47,7 @@ dependencies {
 
 ext {
     PUBLISH_GROUP_ID = 'io.scal'
-    PUBLISH_VERSION = '0.8.2'
+    PUBLISH_VERSION = '0.8.3'
     PUBLISH_ARTIFACT_ID = 'commandbasedarchitecture_coroutine'
 }
 
