@@ -64,7 +64,7 @@ TBD
 
 ## Example
 
-![Example](https://github.com/scalio/command-based-architecture/blob/master/resources/list_details_broadcast.gif)
+![Example](https://raw.githubusercontent.com/scalio/command-based-architecture/master/resources/list_details_broadcast.gif)
 
 #### Contact ####
 
